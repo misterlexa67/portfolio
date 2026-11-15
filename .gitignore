@@ -1,0 +1,7 @@
+# рабочие файлы, не для публикации
+.playwright-mcp/
+.claude/
+.mcp.json
+CLAUDE.md
+DESIGN_RULES.md
+*/assets/mockup.png

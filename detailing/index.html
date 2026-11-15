@@ -1,0 +1,449 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Глянец — лаборатория детейлинга</title>
+<meta name="description" content="Демо-концепт. Глянец — детейлинг, основанный на измерениях. Нижний Новгород. Бизнес вымышленный.">
+<meta name="theme-color" content="#F0EDE5">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fira+Sans+Extra+Condensed:wght@700;800;900&family=Golos+Text:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%230D0D0C'/%3E%3Cpath d='M9 6h14v4H13v16H9z' fill='%23D8FF2E'/%3E%3C/svg%3E">
+<script>document.documentElement.classList.add('js');setTimeout(function(){if(!window.gsap)document.documentElement.classList.remove('js')},4000)</script>
+<script type="importmap">
+{ "imports": {
+  "three": "https://cdn.jsdelivr.net/npm/three@0.169.0/build/three.module.js",
+  "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.169.0/examples/jsm/"
+} }
+</script>
+</head>
+<body>
+
+<!-- SVG-иконки -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M3 12h16M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="square"/></symbol>
+    <symbol id="i-pin" viewBox="0 0 24 24"><path d="M12 21s-6.5-6.2-6.5-11.2A6.5 6.5 0 0 1 12 3.3a6.5 6.5 0 0 1 6.5 6.5C18.5 14.8 12 21 12 21z" fill="none" stroke="currentColor" stroke-width="1.6"/><circle cx="12" cy="9.8" r="2.2" fill="currentColor"/></symbol>
+    <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M12 7v5.2l3.4 2" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="square"/></symbol>
+    <symbol id="i-drag" viewBox="0 0 24 24"><path d="M8 7l-5 5 5 5M16 7l5 5-5 5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="square"/></symbol>
+    <symbol id="i-nowash" viewBox="0 0 32 32"><path d="M16 4c-5 6.6-8 11-8 15a8 8 0 0 0 16 0c0-4-3-8.4-8-15z" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M5 27L27 5" stroke="currentColor" stroke-width="1.6"/></symbol>
+    <symbol id="i-hand" viewBox="0 0 32 32"><rect x="5" y="12" width="22" height="9" rx="1" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M8 21v5M12 21v5M16 21v5M20 21v5M24 21v5" stroke="currentColor" stroke-width="1.6"/><path d="M5 28L27 6" stroke="currentColor" stroke-width="1.6"/></symbol>
+    <symbol id="i-ph" viewBox="0 0 32 32"><path d="M12 4h8M13 4v8L6 25.5A2 2 0 0 0 7.8 28h16.4a2 2 0 0 0 1.8-2.5L19 12V4" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M9.5 20h13" stroke="currentColor" stroke-width="1.6"/></symbol>
+    <symbol id="i-gauge" viewBox="0 0 32 32"><path d="M5 22a11 11 0 1 1 22 0" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M16 22l6-8" stroke="currentColor" stroke-width="1.8" stroke-linecap="square"/><circle cx="16" cy="22" r="2" fill="currentColor"/><path d="M8 13l1.6 1.2M16 10v2M24 13l-1.6 1.2" stroke="currentColor" stroke-width="1.4"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="square"/></symbol>
+    <symbol id="i-dash" viewBox="0 0 24 24"><path d="M7 12h10" stroke="currentColor" stroke-width="1.6"/></symbol>
+    <symbol id="i-calc" viewBox="0 0 24 24"><rect x="5" y="3" width="14" height="18" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M8 7h8M8 12h2M12 12h2M8 16h2M12 16h2M16 12v4" stroke="currentColor" stroke-width="1.6"/></symbol>
+    <symbol id="i-chev" viewBox="0 0 24 24"><path d="M7 10l5 5 5-5" fill="none" stroke="currentColor" stroke-width="1.8"/></symbol>
+  </defs>
+</svg>
+
+<div class="blueprint" aria-hidden="true"><div class="wrap grid">
+  <i></i><i></i><i></i><i></i><i class="d"></i><i class="d"></i><i class="d"></i><i class="d"></i><i class="d"></i><i class="d"></i><i class="d"></i><i class="d"></i>
+</div></div>
+
+<div class="demo-bar"><div class="wrap"><span>Демо-концепт, бизнес вымышленный</span><span class="mono hide-s">GL/LAB · ВЕР. 0.9 · 2026</span></div></div>
+
+<header class="header" id="top">
+  <div class="wrap header__in">
+    <a href="#top" class="logo" aria-label="Глянец — наверх">Глянец</a>
+    <nav class="nav" aria-label="Основное меню">
+      <a href="#services" class="link">Услуги</a>
+      <a href="#method" class="link">Метод</a>
+      <a href="#protocol" class="link">Протокол</a>
+      <a href="#contacts" class="link">Контакты</a>
+    </nav>
+    <div class="header__right">
+      <span class="geo mono"><svg class="ic"><use href="#i-pin"/></svg>Нижний Новгород</span>
+      <a href="#booking" class="btn btn--outline btn--sm" data-magnetic><span>Записаться</span></a>
+      <button class="burger" aria-label="Открыть меню" aria-expanded="false"><i></i><i></i></button>
+    </div>
+  </div>
+</header>
+
+<div class="menu" aria-hidden="true">
+  <nav class="wrap menu__in">
+    <a href="#services">Услуги</a>
+    <a href="#method">Метод</a>
+    <a href="#protocol">Протокол</a>
+    <a href="#contacts">Контакты</a>
+    <p class="mono menu__meta">Нижний Новгород · ул. Большая Покровская, 52<br>Ежедневно 09:00–22:00</p>
+  </nav>
+</div>
+
+<main>
+
+<!-- HERO -->
+<section class="hero" aria-labelledby="hero-title">
+  <div class="hero__media" data-gl="hero">
+    <canvas class="hero__canvas" aria-hidden="true"></canvas>
+    <img class="hero__static" src="assets/hero-static.webp" alt="" width="1600" height="1000" decoding="async">
+    <div class="tags" aria-hidden="true">
+      <div class="tag" data-tag="0"><svg class="tag__cross" viewBox="0 0 120 120"><path d="M60 0V120M0 60H120"/></svg><span class="tag__txt mono">120 мкм</span></div>
+      <div class="tag" data-tag="1"><svg class="tag__cross" viewBox="0 0 120 120"><path d="M60 0V120M0 60H120"/></svg><span class="tag__txt mono">92 GU</span></div>
+    </div>
+  </div>
+  <div class="wrap hero__in">
+    <h1 id="hero-title" class="display hero__title">
+      <span class="ln"><span>Измеряем</span></span>
+      <span class="ln"><span>блеск</span></span>
+    </h1>
+    <p class="hero__sub" data-hero-fade>Детейлинг, основанный<br>на измерениях.</p>
+    <div class="hero__cta" data-hero-fade>
+      <a href="#booking" class="btn btn--lime" data-magnetic><span>Записаться</span><svg class="ic"><use href="#i-arrow"/></svg></a>
+      <a href="#calc" class="btn btn--ghost" data-magnetic><span>Рассчитать стоимость</span></a>
+    </div>
+    <div class="hero__ruler" aria-hidden="true"><span style="top:0">150</span><span style="top:33.3%">100</span><span style="top:66.6%">50</span><span style="top:100%">0 мкм</span><b></b><em>118</em></div>
+    <p class="hero__coords mono" data-hero-fade>56.3269° N &nbsp;44.0059° E &nbsp;/&nbsp; ГЛЯНЕЦ·LAB</p>
+  </div>
+</section>
+
+<!-- СЕЧЕНИЕ -->
+<section class="layers sec" id="method" aria-labelledby="layers-title">
+  <div class="wrap grid layers__grid">
+    <div class="layers__head">
+      <p class="eyebrow mono"><span>§ 01</span> Метод</p>
+      <h2 id="layers-title" class="display h2"><span class="ln"><span>Точность</span></span><span class="ln"><span>до микрона</span></span></h2>
+      <p class="lead" data-reveal>Каждая услуга — точечное воздействие на покрытие на нужном уровне. Сначала меряем толщину, потом работаем.</p>
+      <div class="layers__meter mono" aria-hidden="true">
+        <span>Сечение ЛКП</span>
+        <b class="layers__pct">000</b><span>/ 100</span>
+      </div>
+    </div>
+
+    <div class="layers__stage" data-gl="layers">
+      <canvas class="layers__canvas" aria-hidden="true"></canvas>
+      <img class="layers__static" src="assets/layers-static.webp" alt="Сечение лакокрасочного покрытия: лак, эмаль, грунт, металл" width="1200" height="1000" loading="lazy" decoding="async">
+      <svg class="callouts__lines" aria-hidden="true"></svg>
+      <div class="callouts" aria-hidden="true"></div>
+      <p class="layers__note mono" aria-hidden="true">Масштаб условный</p>
+    </div>
+
+    <ol class="layers__list" aria-label="Слои покрытия">
+      <li data-layer="0"><span>Прозрачный лак</span><b class="mono">40–60 мкм</b></li>
+      <li data-layer="1"><span>Базовая эмаль</span><b class="mono">15–25 мкм</b></li>
+      <li data-layer="2"><span>Грунт</span><b class="mono">20–30 мкм</b></li>
+      <li data-layer="3"><span>Кузовная панель</span><b class="mono">0,7–0,9 мм</b></li>
+    </ol>
+
+    <ul class="layers__svc" aria-label="На какой слой действует услуга">
+      <li data-phase="0"><span class="mono">A</span><div><b>Полировка</b><p>Снимаем 2–3 мкм внутри слоя лака. Риски уходят, лак остаётся.</p></div></li>
+      <li data-phase="1"><span class="mono">B</span><div><b>Керамика</b><p>Плёнка 1–2 мкм поверх лака. Твёрдость 9H, грязь не держится.</p></div></li>
+      <li data-phase="2"><span class="mono">C</span><div><b>Плёнка PPF</b><p>Новый слой 200 мкм сверху. Принимает на себя сколы и песок.</p></div></li>
+    </ul>
+  </div>
+</section>
+
+<!-- УСЛУГИ -->
+<section class="services sec" id="services" aria-labelledby="svc-title">
+  <div class="wrap grid">
+    <div class="services__head">
+      <p class="eyebrow mono"><span>§ 02</span> Услуги</p>
+      <h2 id="svc-title" class="display h2"><span class="ln"><span>Наши</span></span><span class="ln"><span>услуги</span></span></h2>
+      <p class="lead" data-reveal>Три типа работ. Цены — для I класса, для крупных машин считает калькулятор ниже.</p>
+    </div>
+    <div class="table" role="table" aria-label="Услуги и цены">
+      <div class="table__row table__row--h mono" role="row">
+        <span role="columnheader">Услуга</span><span role="columnheader">Время</span><span role="columnheader">Ресурс</span><span role="columnheader">Стоимость</span>
+      </div>
+      <div class="table__group mono" role="row"><span role="cell">Коррекция</span></div>
+      <div class="table__row" role="row" data-row>
+        <span class="t-name" role="cell"><i class="sq"></i>Полировка<small>Абразивная коррекция лака, удаление рисок и голограмм</small></span>
+        <span class="mono" role="cell" data-type>6–12 ч</span><span class="mono" role="cell" data-type>до 12 мес.</span><span class="mono t-price" role="cell" data-type>от 18 000 ₽</span>
+      </div>
+      <div class="table__group mono" role="row"><span role="cell">Защита</span></div>
+      <div class="table__row" role="row" data-row>
+        <span class="t-name" role="cell"><i class="sq"></i>Керамика<small>Кварцевое покрытие 9H поверх лака, гидрофоб</small></span>
+        <span class="mono" role="cell" data-type>4–6 ч</span><span class="mono" role="cell" data-type>12–24 мес.</span><span class="mono t-price" role="cell" data-type>от 22 000 ₽</span>
+      </div>
+      <div class="table__row" role="row" data-row>
+        <span class="t-name" role="cell"><i class="sq"></i>Плёнка PPF<small>Полиуретан 200 мкм: капот, крылья, бампер, фары</small></span>
+        <span class="mono" role="cell" data-type>1–3 дня</span><span class="mono" role="cell" data-type>до 7 лет</span><span class="mono t-price" role="cell" data-type>от 45 000 ₽</span>
+      </div>
+      <div class="table__group mono" role="row"><span role="cell">Чистота</span></div>
+      <div class="table__row" role="row" data-row>
+        <span class="t-name" role="cell"><i class="sq"></i>Химчистка<small>Салон целиком: кожа, ткань, потолок, пластик</small></span>
+        <span class="mono" role="cell" data-type>5–8 ч</span><span class="mono" role="cell">—</span><span class="mono t-price" role="cell" data-type>от 12 000 ₽</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ПАКЕТЫ + КАЛЬКУЛЯТОР -->
+<section class="packs sec" aria-labelledby="packs-title">
+  <div class="wrap grid">
+    <div class="packs__head">
+      <p class="eyebrow mono"><span>§ 03</span> Пакеты</p>
+      <h2 id="packs-title" class="display h2"><span class="ln"><span>Три протокола</span></span></h2>
+      <p class="lead" data-reveal>Цена пакета — сумма услуг из таблицы, без скрытых позиций.</p>
+    </div>
+
+    <div class="spec" data-reveal>
+      <div class="spec__tabs mono" role="tablist" aria-label="Пакеты">
+        <button role="tab" aria-selected="false" data-pack-tab="0">Освежить</button>
+        <button role="tab" aria-selected="true" data-pack-tab="1">Восстановить</button>
+        <button role="tab" aria-selected="false" data-pack-tab="2">Защитить</button>
+      </div>
+      <div class="spec__grid" data-active="1">
+        <div class="spec__col spec__col--labels mono" aria-hidden="true">
+          <span class="spec__name">&nbsp;</span>
+          <span>Химчистка</span><span>Полировка</span><span>Керамика</span><span>Плёнка PPF</span>
+          <span>Время</span><span>Ресурс</span><span>Цена от</span><span></span>
+        </div>
+        <article class="spec__col" data-pack="0">
+          <h3 class="spec__name"><span class="mono">P/01</span>Освежить</h3>
+          <span data-l="Химчистка"><svg class="ic"><use href="#i-check"/></svg></span>
+          <span data-l="Полировка"><svg class="ic"><use href="#i-check"/></svg></span>
+          <span data-l="Керамика" class="off"><svg class="ic"><use href="#i-dash"/></svg></span>
+          <span data-l="Плёнка PPF" class="off"><svg class="ic"><use href="#i-dash"/></svg></span>
+          <span data-l="Время" class="mono">1–2 дня</span>
+          <span data-l="Ресурс" class="mono">до 12 мес.</span>
+          <span data-l="Цена от" class="mono spec__price">30 000 ₽</span>
+          <span><button class="btn btn--ghost btn--sm" data-pick="0" data-magnetic><span>В расчёт</span></button></span>
+        </article>
+        <article class="spec__col spec__col--hot" data-pack="1">
+          <h3 class="spec__name"><span class="mono">P/02 · чаще всего</span>Восстановить</h3>
+          <span data-l="Химчистка" class="off"><svg class="ic"><use href="#i-dash"/></svg></span>
+          <span data-l="Полировка"><svg class="ic"><use href="#i-check"/></svg></span>
+          <span data-l="Керамика"><svg class="ic"><use href="#i-check"/></svg></span>
+          <span data-l="Плёнка PPF" class="off"><svg class="ic"><use href="#i-dash"/></svg></span>
+          <span data-l="Время" class="mono">1–2 дня</span>
+          <span data-l="Ресурс" class="mono">12–24 мес.</span>
+          <span data-l="Цена от" class="mono spec__price">40 000 ₽</span>
+          <span><button class="btn btn--lime btn--sm" data-pick="1" data-magnetic><span>В расчёт</span></button></span>
+        </article>
+        <article class="spec__col" data-pack="2">
+          <h3 class="spec__name"><span class="mono">P/03</span>Защитить</h3>
+          <span data-l="Химчистка" class="off"><svg class="ic"><use href="#i-dash"/></svg></span>
+          <span data-l="Полировка"><svg class="ic"><use href="#i-check"/></svg></span>
+          <span data-l="Керамика"><svg class="ic"><use href="#i-check"/></svg></span>
+          <span data-l="Плёнка PPF"><svg class="ic"><use href="#i-check"/></svg></span>
+          <span data-l="Время" class="mono">2–4 дня</span>
+          <span data-l="Ресурс" class="mono">до 7 лет</span>
+          <span data-l="Цена от" class="mono spec__price">85 000 ₽</span>
+          <span><button class="btn btn--ghost btn--sm" data-pick="2" data-magnetic><span>В расчёт</span></button></span>
+        </article>
+      </div>
+    </div>
+
+    <form class="calc" id="calc" data-reveal aria-labelledby="calc-title" onsubmit="return false">
+      <div class="calc__top">
+        <h3 id="calc-title" class="calc__title"><svg class="ic"><use href="#i-calc"/></svg>Рассчитать стоимость</h3>
+        <p class="mono calc__hint">Ориентир, точная цена — после замера</p>
+      </div>
+      <fieldset class="calc__f">
+        <legend class="mono">Класс авто</legend>
+        <div class="chips">
+          <label class="chip"><input type="radio" name="cls" value="1" checked><span><b>I</b> Малый</span></label>
+          <label class="chip"><input type="radio" name="cls" value="1.2"><span><b>II</b> Средний</span></label>
+          <label class="chip"><input type="radio" name="cls" value="1.4"><span><b>III</b> Бизнес, кроссовер</span></label>
+          <label class="chip"><input type="radio" name="cls" value="1.6"><span><b>IV</b> Внедорожник</span></label>
+        </div>
+      </fieldset>
+      <fieldset class="calc__f">
+        <legend class="mono">Услуги</legend>
+        <div class="checks">
+          <label class="check"><input type="checkbox" name="svc" value="polish" checked><span>Полировка</span><em class="mono">18 000</em></label>
+          <label class="check"><input type="checkbox" name="svc" value="ceramic" checked><span>Керамика</span><em class="mono">22 000</em></label>
+          <label class="check"><input type="checkbox" name="svc" value="ppf"><span>Плёнка PPF</span><em class="mono">45 000</em></label>
+          <label class="check"><input type="checkbox" name="svc" value="clean"><span>Химчистка</span><em class="mono">12 000</em></label>
+        </div>
+      </fieldset>
+      <div class="calc__out">
+        <div class="calc__lines mono" aria-live="polite"></div>
+        <div class="calc__total"><span class="mono">Итого от</span><output class="mono" name="total">40 000 ₽</output></div>
+        <a href="#booking" class="btn btn--lime calc__go" data-magnetic><span>Записаться с этим расчётом</span><svg class="ic"><use href="#i-arrow"/></svg></a>
+      </div>
+    </form>
+  </div>
+</section>
+
+<!-- ДО / ПОСЛЕ -->
+<section class="ba sec sec--dark" aria-labelledby="ba-title">
+  <div class="wrap grid">
+    <div class="ba__media" data-reveal>
+      <div class="ba__frame" role="slider" tabindex="0" aria-label="Сравнение до и после коррекции" aria-valuemin="41" aria-valuemax="92" aria-valuenow="67" aria-valuetext="67 GU">
+        <canvas class="ba__after"></canvas>
+        <div class="ba__beforeWrap"><canvas class="ba__before"></canvas></div>
+        <span class="ba__lbl ba__lbl--l mono">До</span>
+        <span class="ba__lbl ba__lbl--r mono">После</span>
+        <div class="ba__handle"><i></i><b><svg class="ic"><use href="#i-drag"/></svg></b></div>
+      </div>
+    </div>
+    <div class="ba__info">
+      <p class="eyebrow mono"><span>§ 04</span> Замер</p>
+      <p class="ba__cap mono">Показание блескомера · по положению ручки</p>
+      <h2 id="ba-title" class="ba__read mono"><span class="ba__gu">67</span><small>GU</small></h2>
+      <div class="gauge" aria-hidden="true">
+        <div class="gauge__scale"><i style="--p:0"></i><i style="--p:.25"></i><i style="--p:.5"></i><i style="--p:.75"></i><i style="--p:1"></i></div>
+        <div class="gauge__marks mono"><span>0</span><span>25</span><span>50</span><span>75</span><span>100</span></div>
+        <div class="gauge__fill"></div>
+        <div class="gauge__pin"></div>
+      </div>
+      <p class="ba__fromto mono"><span>до · 41 GU</span><svg class="ic"><use href="#i-arrow"/></svg><b>после · 92 GU</b></p>
+      <p class="lead">Измерение блескомером под углом 20° до и после коррекции. Потяните ручку — прибор считает вслед.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ПРОТОКОЛ -->
+<section class="protocol sec" id="protocol" aria-labelledby="proto-title">
+  <div class="wrap grid">
+    <div class="protocol__head">
+      <p class="eyebrow mono"><span>§ 05</span> Протокол</p>
+      <h2 id="proto-title" class="display h2"><span class="ln"><span>Процесс</span></span><span class="ln"><span>работы</span></span></h2>
+      <p class="lead" data-reveal>Чёткий протокол на каждом этапе. Каждый замер — в отчёте, который вы забираете вместе с машиной.</p>
+    </div>
+    <ol class="steps">
+      <li class="steps__line" aria-hidden="true"><i></i></li>
+      <li class="step"><span class="step__n mono">01</span><h3>Диагностика</h3><p>Толщиномер по 40 точкам, блескомер, осмотр под светом 6500 K.</p><span class="step__t mono">30 мин</span></li>
+      <li class="step"><span class="step__n mono">02</span><h3>Коррекция</h3><p>Подбор абразива на тестовом участке. Снимаем не больше 3 мкм.</p><span class="step__t mono">6–12 ч</span></li>
+      <li class="step"><span class="step__n mono">03</span><h3>Защита</h3><p>Обезжиривание, нанесение состава или плёнки, ИК-сушка.</p><span class="step__t mono">4 ч – 3 дня</span></li>
+      <li class="step"><span class="step__n mono">04</span><h3>Контроль</h3><p>Повторные замеры, отчёт с цифрами «было / стало».</p><span class="step__t mono">20 мин</span></li>
+    </ol>
+  </div>
+</section>
+
+<!-- ОТЗЫВЫ -->
+<section class="reports sec" aria-labelledby="rep-title">
+  <div class="wrap grid">
+    <div class="reports__head">
+      <p class="eyebrow mono"><span>§ 06</span> Отчёты</p>
+      <h2 id="rep-title" class="display h2"><span class="ln"><span>Было /</span></span><span class="ln"><span>стало</span></span></h2>
+      <p class="lead" data-reveal>Отзывы — пример: имена и машины вымышлены, формат отчёта настоящий.</p>
+    </div>
+    <div class="reports__list">
+      <article class="report report--a" data-reveal>
+        <header class="report__h mono"><span>Отчёт № 0418</span><span class="stamp">Пример</span></header>
+        <dl class="report__d mono">
+          <div><dt>Объект</dt><dd>Седан, II класс</dd></div>
+          <div><dt>Протокол</dt><dd>Полировка + керамика</dd></div>
+          <div><dt>ЛКП</dt><dd>112–128 мкм</dd></div>
+          <div><dt>Снято</dt><dd>2,4 мкм</dd></div>
+        </dl>
+        <p class="report__gu mono"><span>38</span><small>GU</small><svg class="ic"><use href="#i-arrow"/></svg><b>90</b><small>GU</small></p>
+        <blockquote>«Машине шесть лет, после автомоек вся в паутинке. Забрал — смотрю в капот как в зеркало. И распечатка с замерами — первый раз такое вижу.»</blockquote>
+        <p class="report__who mono">Андрей К. · пример</p>
+      </article>
+      <article class="report report--b" data-reveal>
+        <header class="report__h mono"><span>Отчёт № 0431</span><span class="stamp">Пример</span></header>
+        <dl class="report__d mono">
+          <div><dt>Объект</dt><dd>Кроссовер, III класс</dd></div>
+          <div><dt>Протокол</dt><dd>Защитить</dd></div>
+          <div><dt>Плёнка</dt><dd>200 мкм, перед</dd></div>
+          <div><dt>Через 6 мес.</dt><dd>0 сколов</dd></div>
+        </dl>
+        <p class="report__gu mono"><span>52</span><small>GU</small><svg class="ic"><use href="#i-arrow"/></svg><b>91</b><small>GU</small></p>
+        <blockquote>«Плёнку на капоте не видно вообще, кромки завёрнуты. Полгода по трассе М-7 — ни одного скола.»</blockquote>
+        <p class="report__who mono">Марина Л. · пример</p>
+      </article>
+      <article class="report report--c" data-reveal>
+        <header class="report__h mono"><span>Отчёт № 0447</span><span class="stamp">Пример</span></header>
+        <dl class="report__d mono">
+          <div><dt>Объект</dt><dd>Хэтчбек, I класс</dd></div>
+          <div><dt>Протокол</dt><dd>Освежить</dd></div>
+          <div><dt>ЛКП</dt><dd>96–104 мкм</dd></div>
+          <div><dt>Снято</dt><dd>1,8 мкм</dd></div>
+        </dl>
+        <p class="report__gu mono"><span>41</span><small>GU</small><svg class="ic"><use href="#i-arrow"/></svg><b>88</b><small>GU</small></p>
+        <blockquote>«Готовил машину к продаже. После химчистки и полировки ушла за два дня и дороже, чем я рассчитывал.»</blockquote>
+        <p class="report__who mono">Олег Т. · пример</p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- УХОД -->
+<section class="care sec" aria-labelledby="care-title">
+  <div class="wrap grid">
+    <div class="care__head">
+      <p class="eyebrow mono"><span>§ 07</span> После процедуры</p>
+      <h2 id="care-title" class="display h3">Первые 30&nbsp;дней</h2>
+    </div>
+    <ul class="care__list">
+      <li data-reveal><svg class="care__ic"><use href="#i-nowash"/></svg><span class="mono">01 · 7 дней</span><b>Без мойки</b><p>Керамика набирает твёрдость. Пыль просто сдувается.</p></li>
+      <li data-reveal><svg class="care__ic"><use href="#i-hand"/></svg><span class="mono">02 · всегда</span><b>Без щёток</b><p>Только ручная мойка двумя вёдрами. Щётки возвращают риски.</p></li>
+      <li data-reveal><svg class="care__ic"><use href="#i-ph"/></svg><span class="mono">03 · pH 7</span><b>Нейтральный шампунь</b><p>Щёлочь и «бесконтакт» сушат защитный слой.</p></li>
+      <li data-reveal><svg class="care__ic"><use href="#i-gauge"/></svg><span class="mono">04 · 30 день</span><b>Контрольный замер</b><p>Бесплатно, 10 минут. Сравним GU с отчётом.</p></li>
+    </ul>
+  </div>
+</section>
+
+<!-- ЗАПИСЬ -->
+<section class="booking sec sec--dark" id="booking" aria-labelledby="book-title">
+  <div class="wrap grid">
+    <div class="booking__head">
+      <p class="eyebrow mono"><span>§ 08</span> Запись</p>
+      <h2 id="book-title" class="display h2"><span class="ln"><span>Запись</span></span><span class="ln"><span>на диагностику</span></span></h2>
+      <p class="lead" data-reveal>Выберите параметры и удобную дату. Диагностика бесплатная.</p>
+    </div>
+    <form class="book" novalidate data-reveal>
+      <div class="book__steps">
+        <label class="field">
+          <span class="field__n mono">01 · Класс автомобиля</span>
+          <span class="field__box"><select name="cls" required>
+            <option value="" disabled selected>Выберите класс</option>
+            <option value="I">I — малый</option><option value="II">II — средний</option><option value="III">III — бизнес, кроссовер</option><option value="IV">IV — внедорожник, минивэн</option>
+          </select><svg class="ic"><use href="#i-chev"/></svg></span>
+        </label>
+        <label class="field">
+          <span class="field__n mono">02 · Услуга</span>
+          <span class="field__box"><select name="svc" required>
+            <option value="" disabled selected>Выберите услугу</option>
+            <optgroup label="Услуги"><option>Полировка</option><option>Керамика</option><option>Плёнка PPF</option><option>Химчистка</option></optgroup>
+            <optgroup label="Пакеты"><option>Освежить</option><option>Восстановить</option><option>Защитить</option></optgroup>
+            <option>Только диагностика</option>
+          </select><svg class="ic"><use href="#i-chev"/></svg></span>
+        </label>
+        <label class="field">
+          <span class="field__n mono">03 · Дата</span>
+          <span class="field__box"><input type="date" name="date" required></span>
+        </label>
+        <label class="field">
+          <span class="field__n mono">04 · Телефон</span>
+          <span class="field__box"><input type="tel" name="tel" inputmode="tel" placeholder="+7 ___ ___-__-__" autocomplete="tel" required></span>
+        </label>
+      </div>
+      <div class="book__foot">
+        <button type="submit" class="btn btn--lime btn--lg" data-magnetic><span>Подобрать время</span><svg class="ic"><use href="#i-arrow"/></svg></button>
+        <p class="mono book__err" aria-live="polite"></p>
+      </div>
+      <div class="book__done" role="status" hidden>
+        <p class="mono book__done-k">Статус</p>
+        <p class="book__done-t">Это демо, заявка не отправлена</p>
+        <p class="mono book__done-s"></p>
+        <button type="button" class="btn btn--ghost btn--sm book__reset"><span>Заполнить заново</span></button>
+      </div>
+    </form>
+  </div>
+</section>
+
+</main>
+
+<footer class="footer" id="contacts">
+  <div class="wrap grid footer__in">
+    <div class="footer__brand">
+      <p class="logo logo--lg">Глянец</p>
+      <p class="mono footer__tag">Лаборатория детейлинга</p>
+    </div>
+    <p class="footer__item"><svg class="ic"><use href="#i-pin"/></svg><span>Нижний Новгород,<br>ул. Большая Покровская, 52</span></p>
+    <p class="footer__item"><svg class="ic"><use href="#i-clock"/></svg><span>Ежедневно<br><span class="mono">09:00–22:00</span></span></p>
+    <p class="footer__demo mono">Демо-концепт, бизнес вымышленный</p>
+    <p class="footer__giant display" aria-hidden="true">Глянец</p>
+  </div>
+</footer>
+
+<div class="dock" aria-label="Быстрые действия">
+  <a href="#calc" class="btn btn--ghost dock__calc"><svg class="ic"><use href="#i-calc"/></svg><span>Рассчитать</span></a>
+  <a href="#booking" class="btn btn--lime dock__book"><span>Записаться</span><svg class="ic"><use href="#i-arrow"/></svg></a>
+</div>
+
+<div class="cursor" aria-hidden="true"><i class="cursor__x"></i><i class="cursor__y"></i><span class="cursor__c mono"></span></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/lenis@1.1.13/dist/lenis.min.js"></script>
+<script type="module" src="js/main.js"></script>
+</body>
+</html>
