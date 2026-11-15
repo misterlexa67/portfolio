@@ -21,6 +21,42 @@
 </head>
 <body>
 
+<!-- Прелоадер «калибровка прибора» (≤1,5 с, при повторном заходе пропускается) -->
+<div class="pre" aria-hidden="true">
+  <div class="pre__dial">
+    <svg class="pre__svg" viewBox="0 0 240 140"><g class="pre__ticks"></g><path class="pre__arc" d="M30 120 A90 90 0 0 1 210 120"/><g class="pre__needle"><line x1="120" y1="120" x2="120" y2="42"/><circle cx="120" cy="120" r="6"/></g></svg>
+    <p class="pre__val mono"><b>000</b><span>Калибровка · GU</span></p>
+  </div>
+  <i class="pre__scan"></i>
+</div>
+<script>
+(function(){
+  var d=document,root=d.documentElement,pre=d.querySelector('.pre'),seen=false;
+  try{seen=localStorage.getItem('gl-cal')==='1'}catch(e){}
+  var rm=matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if(seen||rm||!root.classList.contains('js')){pre.remove();window.__pre=Promise.resolve();return}
+  try{localStorage.setItem('gl-cal','1')}catch(e){}
+  var g=pre.querySelector('.pre__ticks'),ns='http://www.w3.org/2000/svg';
+  for(var i=0;i<=20;i++){var a=Math.PI*(1-i/20),r1=i%5?82:76,l=d.createElementNS(ns,'line');
+    l.setAttribute('x1',120+Math.cos(a)*r1);l.setAttribute('y1',120-Math.sin(a)*r1);
+    l.setAttribute('x2',120+Math.cos(a)*90);l.setAttribute('y2',120-Math.sin(a)*90);g.appendChild(l)}
+  var nd=pre.querySelector('.pre__needle'),val=pre.querySelector('.pre__val b'),t0=performance.now(),done;
+  window.__pre=new Promise(function(r){done=r});
+  function step(now){var t=now-t0,k,v;
+    if(t<720){k=t/720;k=1-Math.pow(1-k,3);v=k*100}
+    else if(t<860){k=(t-720)/140;v=100+Math.sin(k*Math.PI)*4;if(!pre.classList.contains('click'))pre.classList.add('click')}
+    else{v=100}
+    nd.style.transform='rotate('+(-90+v*1.8)+'deg)';val.textContent=('00'+Math.round(Math.min(v,100))).slice(-3);
+    if(t<900){requestAnimationFrame(step);return}
+    pre.classList.add('open');done();
+    var s0=performance.now();(function scan(n){var q=Math.min(1,(n-s0)/520);q=q*q*(3-2*q);
+      pre.style.setProperty('--y',(q*100)+'%');if(q<1)requestAnimationFrame(scan);else pre.remove()})(s0);
+  }
+  requestAnimationFrame(step);
+  setTimeout(function(){if(pre.isConnected){pre.remove();done&&done()}},2600);
+})();
+</script>
+
 <!-- SVG-иконки -->
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
   <defs>
@@ -36,6 +72,9 @@
     <symbol id="i-dash" viewBox="0 0 24 24"><path d="M7 12h10" stroke="currentColor" stroke-width="1.6"/></symbol>
     <symbol id="i-calc" viewBox="0 0 24 24"><rect x="5" y="3" width="14" height="18" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M8 7h8M8 12h2M12 12h2M8 16h2M12 16h2M16 12v4" stroke="currentColor" stroke-width="1.6"/></symbol>
     <symbol id="i-chev" viewBox="0 0 24 24"><path d="M7 10l5 5 5-5" fill="none" stroke="currentColor" stroke-width="1.8"/></symbol>
+    <symbol id="i-torch" viewBox="0 0 24 24"><path d="M7 3h10l-2 6v11a1 1 0 0 1-1 1h-4a1 1 0 0 1-1-1V9z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M9 9h6M12 13v3" stroke="currentColor" stroke-width="1.6"/></symbol>
+    <symbol id="i-finger" viewBox="0 0 24 24"><path d="M9 11V5.5a1.5 1.5 0 0 1 3 0V11m0-1.5a1.5 1.5 0 0 1 3 0V12m0-1a1.5 1.5 0 0 1 3 0v3.5A6.5 6.5 0 0 1 11.5 21h-.3a5 5 0 0 1-4.1-2.2L4.6 15a1.6 1.6 0 0 1 2.5-2L9 15" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M3 4.5h3M18 4.5h3" stroke="currentColor" stroke-width="1.5"/></symbol>
+    <symbol id="i-reset" viewBox="0 0 24 24"><path d="M4 12a8 8 0 1 0 2.4-5.7M4 4v4h4" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="square"/></symbol>
   </defs>
 </svg>
 
@@ -56,6 +95,7 @@
     </nav>
     <div class="header__right">
       <span class="geo mono"><svg class="ic"><use href="#i-pin"/></svg>Нижний Новгород</span>
+      <button class="inspect" type="button" aria-pressed="false" aria-label="Проверить под светом"><svg class="ic"><use href="#i-torch"/></svg><span>Проверить под светом</span></button>
       <a href="#booking" class="btn btn--outline btn--sm" data-magnetic><span>Записаться</span></a>
       <button class="burger" aria-label="Открыть меню" aria-expanded="false"><i></i><i></i></button>
     </div>
@@ -153,8 +193,8 @@
         <span class="mono" role="cell" data-type>6–12 ч</span><span class="mono" role="cell" data-type>до 12 мес.</span><span class="mono t-price" role="cell" data-type>от 18 000 ₽</span>
       </div>
       <div class="table__group mono" role="row"><span role="cell">Защита</span></div>
-      <div class="table__row" role="row" data-row>
-        <span class="t-name" role="cell"><i class="sq"></i>Керамика<small>Кварцевое покрытие 9H поверх лака, гидрофоб</small></span>
+      <div class="table__row table__row--drops" role="row" data-row data-drops tabindex="0" aria-label="Керамика — наведите или нажмите, чтобы увидеть гидрофобный эффект">
+        <span class="t-name" role="cell"><i class="sq"></i>Керамика<small>Кварцевое покрытие 9H поверх лака, гидрофоб</small><span class="drops" aria-hidden="true"><canvas></canvas><em class="mono">гидрофоб · угол 110°</em></span></span>
         <span class="mono" role="cell" data-type>4–6 ч</span><span class="mono" role="cell" data-type>12–24 мес.</span><span class="mono t-price" role="cell" data-type>от 22 000 ₽</span>
       </div>
       <div class="table__row" role="row" data-row>
@@ -269,6 +309,12 @@
         <span class="ba__lbl ba__lbl--l mono">До</span>
         <span class="ba__lbl ba__lbl--r mono">После</span>
         <div class="ba__handle"><i></i><b><svg class="ic"><use href="#i-drag"/></svg></b></div>
+        <p class="ba__hint mono"><svg class="ic"><use href="#i-finger"/></svg>Потрите поверхность</p>
+        <p class="ba__mirror mono">Зеркало · 92 GU</p>
+      </div>
+      <div class="ba__tools">
+        <p class="mono ba__how">Ручка — сравнить · потереть «до» — отполировать</p>
+        <button type="button" class="ba__reset mono"><svg class="ic"><use href="#i-reset"/></svg>Вернуть риски</button>
       </div>
     </div>
     <div class="ba__info">
@@ -351,6 +397,7 @@
         <p class="report__who mono">Олег Т. · пример</p>
       </article>
     </div>
+    <div class="reports__nav mono" aria-hidden="true"><span><b class="reports__i">1</b> / 3</span><i><em></em></i><span>Листайте</span></div>
   </div>
 </section>
 
@@ -359,7 +406,7 @@
   <div class="wrap grid">
     <div class="care__head">
       <p class="eyebrow mono"><span>§ 07</span> После процедуры</p>
-      <h2 id="care-title" class="display h3">Первые 30&nbsp;дней</h2>
+      <h2 id="care-title" class="care__title" aria-label="Первые 30 дней"><span class="care__big display" aria-hidden="true">30</span><span class="care__cap display" aria-hidden="true">первых<br>дней</span></h2>
     </div>
     <ul class="care__list">
       <li data-reveal><svg class="care__ic"><use href="#i-nowash"/></svg><span class="mono">01 · 7 дней</span><b>Без мойки</b><p>Керамика набирает твёрдость. Пыль просто сдувается.</p></li>
@@ -410,9 +457,22 @@
         <p class="mono book__err" aria-live="polite"></p>
       </div>
       <div class="book__done" role="status" hidden>
-        <p class="mono book__done-k">Статус</p>
-        <p class="book__done-t">Это демо, заявка не отправлена</p>
-        <p class="mono book__done-s"></p>
+        <p class="sr-only">Это демо, заявка не отправлена.</p>
+        <div class="printer" aria-hidden="true"><span class="mono">ГЛЯНЕЦ·LAB — печать отчёта</span><i></i></div>
+        <div class="print">
+          <article class="report report--print">
+            <header class="report__h mono"><span class="pr-no">Заявка № 0000</span><span class="mono pr-date"></span></header>
+            <dl class="report__d mono">
+              <div><dt>Объект</dt><dd class="pr-cls"></dd></div>
+              <div><dt>Протокол</dt><dd class="pr-svc"></dd></div>
+              <div><dt>Дата визита</dt><dd class="pr-day"></dd></div>
+              <div><dt>Телефон</dt><dd class="pr-tel"></dd></div>
+            </dl>
+            <p class="report__gu mono"><span>—</span><small>GU сейчас</small><svg class="ic"><use href="#i-arrow"/></svg><b>92</b><small>GU цель</small></p>
+            <p class="pr-note">Первый замер сделаем при диагностике: толщиномер по 40 точкам и блескомер.</p>
+            <p class="pr-stamp mono">Демо — заявка<br>не отправлена</p>
+          </article>
+        </div>
         <button type="button" class="btn btn--ghost btn--sm book__reset"><span>Заполнить заново</span></button>
       </div>
     </form>
@@ -440,6 +500,8 @@
 </div>
 
 <div class="cursor" aria-hidden="true"><i class="cursor__x"></i><i class="cursor__y"></i><span class="cursor__c mono"></span></div>
+
+<div class="torch" aria-hidden="true"><div class="torch__dark"></div><canvas class="torch__defects" width="560" height="560"></canvas><p class="torch__hint mono"><span class="t-fine">Водите курсором · Esc — выход</span><span class="t-touch">Водите пальцем по экрану</span></p><button type="button" class="torch__exit mono">Выключить свет</button></div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>

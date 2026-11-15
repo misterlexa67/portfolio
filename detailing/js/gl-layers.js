@@ -45,8 +45,8 @@ export function initLayers({ host, mobile, onPhase }) {
   // стекло: прозрачный слой с бликом (без transmission — дешевле и без артефактов на прозрачном холсте)
   const clearMat = new THREE.MeshPhysicalMaterial({ color: 0xe9f0ee, metalness: 0, roughness: 0.03, clearcoat: 1, clearcoatRoughness: 0.01, ior: 1.5, transparent: true, opacity: 0.34, depthWrite: false, envMapIntensity: 2.2, specularIntensity: 1, side: THREE.DoubleSide });
   const enamelMat = new THREE.MeshPhysicalMaterial({ color: 0x3a3b3f, metalness: 0.9, roughness: 0.3, clearcoat: 0.3, clearcoatRoughness: 0.2, normalMap: flakes, normalScale: new THREE.Vector2(0.75, 0.75), envMapIntensity: 1.2 });
-  const primerMat = new THREE.MeshStandardMaterial({ color: 0xbdb8ac, metalness: 0, roughness: 0.96, normalMap: matte, normalScale: new THREE.Vector2(0.35, 0.35), envMapIntensity: 0.6 });
-  const panelMat = new THREE.MeshPhysicalMaterial({ color: 0xd2d2d0, metalness: 1, roughness: 0.26, roughnessMap: brush, anisotropy: mobile ? 0 : 0.85, anisotropyRotation: 0, envMapIntensity: 1.25 });
+  const primerMat = new THREE.MeshStandardMaterial({ color: 0x9e988b, metalness: 0, roughness: 0.96, normalMap: matte, normalScale: new THREE.Vector2(0.35, 0.35), envMapIntensity: 0.6 });
+  const panelMat = new THREE.MeshPhysicalMaterial({ color: 0x8e8f91, metalness: 1, roughness: 0.24, roughnessMap: brush, anisotropy: mobile ? 0 : 0.85, anisotropyRotation: 0, envMapIntensity: 1.25 });
   const mats = [clearMat, enamelMat, primerMat, panelMat];
 
   const root = new THREE.Group();
@@ -70,9 +70,11 @@ export function initLayers({ host, mobile, onPhase }) {
   const limeBasic = (o = 0) => new THREE.MeshBasicMaterial({ color: LIME, transparent: true, opacity: o, depthWrite: false, toneMapped: false });
   // A: полировка — срез внутри лака + сканирующая линия
   const polish = new THREE.Mesh(new THREE.BoxGeometry(W * 0.985, 0.05, D * 0.985), limeBasic());
-  const scan = new THREE.Mesh(new THREE.BoxGeometry(0.03, 0.32, D * 1.02), limeBasic());
+  // сканирующая линия идёт по верхней грани лака (тонкая полоса, без «стенки»)
+  const scan = new THREE.Mesh(new THREE.BoxGeometry(0.05, 0.012, D * 1.0), limeBasic());
   meshes[0].add(polish, scan);
   polish.position.y = LAYERS[0].h / 2 - 0.045;
+  scan.position.y = LAYERS[0].h / 2 + 0.004;
   // B: керамика — тонкая плёнка поверх лака
   const ceramicMat = new THREE.MeshPhysicalMaterial({ color: LIME, metalness: 0, roughness: 0.1, clearcoat: 1, transparent: true, opacity: 0, depthWrite: false, emissive: LIME, emissiveIntensity: 0.25 });
   const ceramic = new THREE.Mesh(new RoundedBoxGeometry(W, 0.03, D, 2, 0.012), ceramicMat);
@@ -82,7 +84,7 @@ export function initLayers({ host, mobile, onPhase }) {
   const ppfMat = new THREE.MeshPhysicalMaterial({ color: 0xffffff, metalness: 0, roughness: 0.08, clearcoat: 1, transparent: true, opacity: 0, depthWrite: false, envMapIntensity: 1.5 });
   const ppfGeo = new RoundedBoxGeometry(W * 1.01, 0.13, D * 1.01, 2, 0.03);
   const ppf = new THREE.Mesh(ppfGeo, ppfMat);
-  const ppfEdges = new THREE.LineSegments(new THREE.EdgesGeometry(new THREE.BoxGeometry(W * 1.01, 0.13, D * 1.01)), new THREE.LineBasicMaterial({ color: 0x0d0d0c, transparent: true, opacity: 0 }));
+  const ppfEdges = new THREE.LineSegments(new THREE.EdgesGeometry(new THREE.BoxGeometry(W * 1.01, 0.13, D * 1.01)), new THREE.LineBasicMaterial({ color: LIME, transparent: true, opacity: 0, toneMapped: false }));
   ppf.add(ppfEdges);
   slab.add(ppf);
 
@@ -99,16 +101,16 @@ export function initLayers({ host, mobile, onPhase }) {
   // ── выноски (только десктоп)
   const NS = 'http://www.w3.org/2000/svg';
   const lines = [], dots = [], labels = [];
-  const useCallouts = !mobile && getComputedStyle(callBox).display !== 'none';
-  if (useCallouts) {
-    LAYERS.forEach(L => {
-      const ln = document.createElementNS(NS, 'line'); svg.appendChild(ln); lines.push(ln);
-      const c = document.createElementNS(NS, 'circle'); c.setAttribute('r', '3'); svg.appendChild(c); dots.push(c);
-      const d = document.createElement('div'); d.className = 'callout';
-      d.innerHTML = `${L.name}<b data-v="${L.val}">${L.val}</b>`;
-      callBox.appendChild(d); labels.push(d);
-    });
-  }
+  // десктоп: выноски с подписями; телефон: номера 1–4 прямо на слоях (те же номера в списке)
+  const narrowUI = () => host.clientWidth < 700;
+  const useCallouts = true;
+  LAYERS.forEach((L, i) => {
+    const ln = document.createElementNS(NS, 'line'); svg.appendChild(ln); lines.push(ln);
+    const c = document.createElementNS(NS, 'circle'); c.setAttribute('r', '4'); svg.appendChild(c); dots.push(c);
+    const d = document.createElement('div'); d.className = 'callout';
+    d.innerHTML = `<i class="callout__n">${i + 1}</i><span class="callout__t">${L.name}<b data-v="${L.val}">${L.val}</b></span>`;
+    callBox.appendChild(d); labels.push(d);
+  });
   const anchor = new THREE.Vector3(), tmp = new THREE.Vector3();
 
   let w = 1, h = 1;
@@ -119,7 +121,7 @@ export function initLayers({ host, mobile, onPhase }) {
     camera.aspect = w / h;
     const narrow = camera.aspect < 1;
     camera.fov = narrow ? 30 : 24;
-    const dist = narrow ? 10.8 : 11.5;
+    const dist = narrow ? 10.8 : 12.6;
     camera.position.set(0, dist * 0.5, dist * 0.87);
     camera.lookAt(narrow ? 0 : 0.35, narrow ? 0.15 : 0.25, 0);
     // на десктопе плита левее, чтобы справа поместились выноски
@@ -129,6 +131,30 @@ export function initLayers({ host, mobile, onPhase }) {
   resize();
   new ResizeObserver(resize).observe(host);
   bindTilt();
+
+  // плиту можно взять и повернуть; отпустили — пружинит обратно
+  let dragYaw = 0, dragging = false, pend = false, lastX = 0, sx0 = 0, sy0 = 0;
+  host.addEventListener('pointerdown', e => {
+    sx0 = lastX = e.clientX; sy0 = e.clientY;
+    if (e.pointerType === 'mouse') { dragging = true; host.setPointerCapture(e.pointerId); host.classList.add('grabbing'); }
+    else pend = true;
+    start();
+  });
+  host.addEventListener('pointermove', e => {
+    if (pend) {
+      const dx = Math.abs(e.clientX - sx0), dy = Math.abs(e.clientY - sy0);
+      if (dx + dy < 6) return;
+      pend = false;
+      if (dx > dy) { dragging = true; host.setPointerCapture(e.pointerId); }
+    }
+    if (!dragging) return;
+    dragYaw = Math.max(-1.3, Math.min(1.3, dragYaw + (e.clientX - lastX) * 0.008));
+    lastX = e.clientX;
+    start();
+  });
+  const endDrag = () => { dragging = false; pend = false; host.classList.remove('grabbing'); };
+  host.addEventListener('pointerup', endDrag); host.addEventListener('pointercancel', endDrag);
+  host.addEventListener('touchmove', e => { if (dragging) e.preventDefault(); }, { passive: false });
 
   // прогресс от ScrollTrigger (scrub), здесь сглаживаем
   let target = 0, prog = 0, phase = -2, explodedOn = false;
@@ -158,7 +184,7 @@ export function initLayers({ host, mobile, onPhase }) {
     const aC = smooth(0.55, 0.62, prog);
     const aF = smooth(0.71, 0.86, prog);
 
-    polish.material.opacity = 0.42 * aP;
+    polish.material.opacity = 0.3 * aP;
     scan.material.opacity = aP;
     scan.position.x = Math.sin(t * 1.6) * W * 0.47;
     ceramicMat.opacity = aC * (prog > 0.72 ? 0.5 : 0.75);
@@ -168,7 +194,8 @@ export function initLayers({ host, mobile, onPhase }) {
     ppf.position.y = topY + 0.08 + 0.07 + (1 - aF) * 1.6;
 
     // общий поворот: медленный дрейф + курсор/гироскоп + немного от скролла
-    root.rotation.y = -0.62 + tilt.x * 0.22 + Math.sin(t * 0.25) * 0.03 + (prog - 0.4) * 0.25;
+    if (!dragging) dragYaw *= 0.9;
+    root.rotation.y = -0.62 + tilt.x * 0.16 + Math.sin(t * 0.25) * 0.03 + dragYaw;
     root.rotation.x = tilt.y * 0.08;
     shadow.material.opacity = 1 - e * 0.45;
     shadow.scale.setScalar(1 + e * 0.15);
@@ -181,12 +208,20 @@ export function initLayers({ host, mobile, onPhase }) {
     const on = e > 0.3;
     if (useCallouts) {
       root.updateMatrixWorld();
-      const right = w - 4;
+      // выноска цепляется за правое (дальнее от зрителя) ребро слоя, по середине толщины:
+      // эта точка не перекрывается другими слоями, линия идёт вправо в свободную колонку
+      const nar = narrowUI();
       for (let i = 0; i < meshes.length; i++) {
-        anchor.set(W / 2, 0, D / 2 - 0.02);
+        anchor.set(W / 2 - 0.01, 0, -D / 2 + 0.01);
         tmp.copy(anchor).applyMatrix4(meshes[i].matrixWorld).project(camera);
         const ax = (tmp.x * 0.5 + 0.5) * w, ay = (-tmp.y * 0.5 + 0.5) * h;
-        const lx = right - 190;
+        if (nar) { // номер слоя рядом с его правым ребром
+          labels[i].style.transform = `translate3d(${Math.min(w - 110, ax + 8).toFixed(1)}px,${(ay - 11).toFixed(1)}px,0)`;
+          const k2 = on ? smooth(0.3 + i * 0.08, 0.55 + i * 0.08, e) : 0;
+          labels[i].classList.toggle('on', k2 > 0.9);
+          continue;
+        }
+        const lx = Math.max(ax + 48, w - 250);
         const k = on ? smooth(0.3 + i * 0.08, 0.55 + i * 0.08, e) : 0;
         const ex = ax + (lx - 10 - ax) * k;
         lines[i].setAttribute('x1', ax.toFixed(1)); lines[i].setAttribute('y1', ay.toFixed(1));
@@ -194,7 +229,7 @@ export function initLayers({ host, mobile, onPhase }) {
         lines[i].style.opacity = k > 0.01 ? 1 : 0;
         dots[i].setAttribute('cx', ax.toFixed(1)); dots[i].setAttribute('cy', ay.toFixed(1));
         dots[i].style.opacity = k > 0.01 ? 1 : 0;
-        labels[i].style.transform = `translate3d(${lx.toFixed(1)}px,${(ay - 18).toFixed(1)}px,0)`;
+        labels[i].style.transform = `translate3d(${lx.toFixed(1)}px,${(ay - 19).toFixed(1)}px,0)`;
         if ((k > 0.95) !== labels[i].classList.contains('on')) {
           labels[i].classList.toggle('on', k > 0.95);
           if (k > 0.95) typeIn(labels[i].querySelector('b'));
@@ -204,7 +239,7 @@ export function initLayers({ host, mobile, onPhase }) {
     if (on !== explodedOn) explodedOn = on;
 
     // если прогресс устоялся и курсор неподвижен — можно не крутить кадры зря
-    const settled = Math.abs(target - prog) < 0.0005 && Math.abs(tilt.tx - tilt.x) < 0.001 && Math.abs(tilt.ty - tilt.y) < 0.001;
+    const settled = Math.abs(target - prog) < 0.0005 && Math.abs(tilt.tx - tilt.x) < 0.001 && Math.abs(tilt.ty - tilt.y) < 0.001 && Math.abs(dragYaw) < 0.001 && !dragging;
     idle = settled ? idle + 1 : 0;
     if (!visible || (mobile && idle > 90 && aP === 0)) stop();
   }
@@ -214,7 +249,16 @@ export function initLayers({ host, mobile, onPhase }) {
   document.addEventListener('visibilitychange', () => { document.hidden ? stop() : start(); });
   addEventListener('deviceorientation', () => { if (visible && !raf) start(); }, { passive: true });
 
-  return { setProgress, layers: LAYERS };
+  return {
+    setProgress, layers: LAYERS,
+    _corners(i = 1) { // отладка: экранные координаты углов слоя
+      root.updateMatrixWorld();
+      return [[1, 1], [1, -1], [-1, 1], [-1, -1]].map(([sx, sz]) => {
+        tmp.set(sx * W / 2, 0, sz * D / 2).applyMatrix4(meshes[i].matrixWorld).project(camera);
+        return [sx, sz, Math.round((tmp.x * 0.5 + 0.5) * w), Math.round((-tmp.y * 0.5 + 0.5) * h)];
+      });
+    },
+  };
 }
 
 /* «набор» цифр как на табло */

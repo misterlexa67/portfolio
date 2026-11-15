@@ -1,4 +1,5 @@
 import { paintAfter, paintBefore, sizeCanvas } from './ba.js';
+import { scramble, initTorch, initDrops, initShine } from './fx.js';
 
 const $ = (s, r = document) => r.querySelector(s);
 const $$ = (s, r = document) => [...r.querySelectorAll(s)];
@@ -95,6 +96,7 @@ let introDone = false;
 function heroIntro() {
   if (!gsap || reduce) { introDone = true; hero && hero.showTags(0); return; }
   const tl = gsap.timeline({ defaults: { ease: 'expo.out' } });
+  $$('.hero__title .ln>span').forEach((el, i) => setTimeout(() => scramble(el, 750), 120 + i * 120));
   tl.to('.hero__title .ln>span', { y: 0, duration: 1.3, stagger: 0.12 }, 0.1)
     .to('[data-hero-fade]', { opacity: 1, y: 0, duration: 1, stagger: 0.08 }, 0.55)
     .fromTo('.hero__media', { opacity: 0 }, { opacity: 1, duration: 1.6, ease: 'power2.out' }, 0)
@@ -142,8 +144,10 @@ async function bootLayers() {
 function reveals() {
   if (!gsap) return;
   if (reduce) return;
-  $$('.sec .display .ln>span').forEach(el => {
-    gsap.to(el, { y: 0, duration: 1.2, ease: 'expo.out', scrollTrigger: { trigger: el.closest('.display'), start: 'top 88%', once: true } });
+  // доступное имя заголовка не должно «мигать» при наборе
+  $$('.display').forEach(h => { if (!h.getAttribute('aria-label')) h.setAttribute('aria-label', h.textContent.replace(/\s+/g, ' ').trim()); });
+  $$('.sec .display .ln>span').forEach((el, i) => {
+    gsap.to(el, { y: 0, duration: 1.2, ease: 'expo.out', scrollTrigger: { trigger: el.closest('.display'), start: 'top 88%', once: true, onEnter: () => scramble(el, 700) } });
   });
   $$('[data-reveal]').forEach(el => {
     gsap.to(el, { opacity: 1, y: 0, duration: 1.1, ease: 'expo.out', scrollTrigger: { trigger: el, start: 'top 90%', once: true } });
@@ -174,7 +178,7 @@ function reveals() {
     gsap.to('.hero__in', { yPercent: 18, ease: 'none', scrollTrigger: { trigger: '.hero', start: 'top top', end: 'bottom top', scrub: true } });
     gsap.to('.report--b', { y: -70, ease: 'none', scrollTrigger: { trigger: '.reports', start: 'top bottom', end: 'bottom top', scrub: true } });
     gsap.to('.report--c', { y: -30, ease: 'none', scrollTrigger: { trigger: '.reports', start: 'top bottom', end: 'bottom top', scrub: true } });
-    gsap.fromTo('.footer__giant', { xPercent: 6 }, { xPercent: -4, ease: 'none', scrollTrigger: { trigger: '.footer', start: 'top bottom', end: 'bottom bottom', scrub: true } });
+    gsap.fromTo('.footer__giant', { xPercent: 4 }, { xPercent: 0, ease: 'none', scrollTrigger: { trigger: '.footer', start: 'top bottom', end: 'bottom bottom', scrub: true } });
     gsap.to('.ba__read', { y: -40, ease: 'none', scrollTrigger: { trigger: '.ba', start: 'top bottom', end: 'bottom top', scrub: true } });
   }
   // чертёжная сетка иногда проявляется на стыке секций
@@ -191,44 +195,102 @@ function beforeAfter() {
   const cA = $('.ba__after'), cB = $('.ba__before');
   const gu = $('.ba__gu'), info = $('.ba__info');
   let painted = false;
-  const paint = () => { sizeCanvas(cA, frame); sizeCanvas(cB, frame); paintAfter(cA); paintBefore(cB); painted = true; };
+  const paint = () => { sizeCanvas(cA, frame); sizeCanvas(cB, frame); paintAfter(cA); paintBefore(cB); painted = true; if (typeof resetRub === 'function') { resetRub(); update(); } };
   new IntersectionObserver(([e], o) => { if (e.isIntersecting) { paint(); o.disconnect(); } }, { rootMargin: '400px' }).observe(frame);
   let rw = 0;
   new ResizeObserver(() => { const w = frame.clientWidth; if (painted && Math.abs(w - rw) > 40) { rw = w; paint(); } else rw = w; }).observe(frame);
 
+  /* «Отполируй сам»: стираем риски с canvas «до» маской, считаем покрытие по сетке */
+  const GX = 48, GY = 30;
+  let grid = new Float32Array(GX * GY);
+  const resetRub = () => { grid = new Float32Array(GX * GY); frame.classList.remove('rubbed', 'mirror'); };
+  const bg = cB.getContext('2d');
+  let lastPt = null;
+  function stamp(cx, cy) {
+    const r = frame.getBoundingClientRect();
+    const nx = (cx - r.left) / r.width, ny = (cy - r.top) / r.height;
+    const R = (coarse ? 0.11 : 0.075) * cB.width;
+    const x = nx * cB.width, y = ny * cB.height;
+    const pts = [];
+    if (lastPt) {
+      const dx = x - lastPt[0], dy = y - lastPt[1], d = Math.hypot(dx, dy), n = Math.max(1, Math.ceil(d / (R * 0.3)));
+      for (let i = 1; i <= n; i++) pts.push([lastPt[0] + dx * i / n, lastPt[1] + dy * i / n]);
+    } else pts.push([x, y]);
+    lastPt = [x, y];
+    bg.save();
+    bg.globalCompositeOperation = 'destination-out';
+    for (const [sx2, sy2] of pts) {
+      const gr = bg.createRadialGradient(sx2, sy2, 0, sx2, sy2, R);
+      gr.addColorStop(0, 'rgba(0,0,0,.55)'); gr.addColorStop(0.6, 'rgba(0,0,0,.3)'); gr.addColorStop(1, 'rgba(0,0,0,0)');
+      bg.fillStyle = gr; bg.beginPath(); bg.arc(sx2, sy2, R, 0, 7); bg.fill();
+      // покрытие
+      const gx = sx2 / cB.width * GX, gy = sy2 / cB.height * GY, gr2 = R / cB.width * GX * 0.8;
+      for (let j = Math.max(0, Math.floor(gy - gr2)); j <= Math.min(GY - 1, Math.ceil(gy + gr2)); j++)
+        for (let i = Math.max(0, Math.floor(gx - gr2)); i <= Math.min(GX - 1, Math.ceil(gx + gr2)); i++) {
+          const dd = Math.hypot(i + 0.5 - gx, (j + 0.5 - gy) * (cB.height / cB.width) * (GX / GY));
+          if (dd < gr2) grid[j * GX + i] = Math.min(1, grid[j * GX + i] + 0.22 * (1 - dd / gr2));
+        }
+    }
+    bg.restore();
+    frame.classList.add('rubbed');
+    update();
+  }
+  function cleanIn(colMax) {
+    let s = 0, n = 0;
+    for (let j = 0; j < GY; j++) for (let i = 0; i < colMax; i++) { s += grid[j * GX + i]; n++; }
+    return n ? s / n : 0;
+  }
+
   let p = 0.5, shown = -1;
-  const set = v => {
-    p = Math.min(1, Math.max(0, v));
-    frame.style.setProperty('--p', p.toFixed(4));
-    const g = Math.round(92 - 51 * p);
+  function update() {
+    const cleanVis = cleanIn(Math.max(1, Math.round(p * GX)));
+    const beforeGU = 41 + 51 * Math.min(1, cleanVis * 1.08);
+    const g = Math.round((1 - p) * 92 + p * beforeGU);
+    frame.classList.toggle('mirror', p > 0.15 && cleanVis > 0.85);
     if (g !== shown) {
       shown = g; gu.textContent = g;
       info.style.setProperty('--gu', g);
       frame.setAttribute('aria-valuenow', g); frame.setAttribute('aria-valuetext', `${g} GU`);
     }
+  }
+  const set = v => {
+    p = Math.min(1, Math.max(0, v));
+    frame.style.setProperty('--p', p.toFixed(4));
+    update();
   };
   set(0.5);
-  let drag = false, sx = 0, sy = 0, decided = false, horiz = false;
+  $('.ba__reset').addEventListener('click', () => { if (painted) { sizeCanvas(cB, frame); paintBefore(cB); } resetRub(); update(); });
+
+  // жесты: ручка — сравнение, остальное — полировка; вертикальный свайп листает страницу
+  let mode = null, sx = 0, sy = 0, pending = false, nearH = false;
   const pos = e => { const r = frame.getBoundingClientRect(); return (e.clientX - r.left) / r.width; };
+  const nearHandle = e => { const r = frame.getBoundingClientRect(); return Math.abs(e.clientX - (r.left + p * r.width)) < (e.pointerType === 'mouse' ? 30 : 40); };
   frame.addEventListener('pointerdown', e => {
-    drag = true; decided = e.pointerType === 'mouse'; horiz = decided; sx = e.clientX; sy = e.clientY;
-    if (horiz) { frame.setPointerCapture(e.pointerId); frame.classList.add('drag'); set(pos(e)); }
     intro && intro.kill();
+    sx = e.clientX; sy = e.clientY; nearH = nearHandle(e); lastPt = null;
+    if (e.pointerType === 'mouse') {
+      mode = nearH ? 'slide' : 'rub';
+      frame.setPointerCapture(e.pointerId);
+      frame.classList.add(mode === 'slide' ? 'drag' : 'rubbing');
+      mode === 'slide' ? set(pos(e)) : stamp(e.clientX, e.clientY);
+    } else { pending = true; mode = null; }
   });
   frame.addEventListener('pointermove', e => {
-    if (!drag) return;
-    if (!decided) {
+    if (e.pointerType === 'mouse' && !mode) { frame.classList.toggle('rubbing', !nearHandle(e)); return; }
+    if (pending) {
       const dx = Math.abs(e.clientX - sx), dy = Math.abs(e.clientY - sy);
       if (dx + dy < 6) return;
-      decided = true; horiz = dx > dy;
-      if (horiz) { frame.setPointerCapture(e.pointerId); frame.classList.add('drag'); }
+      pending = false;
+      if (dx > dy) { mode = nearH ? 'slide' : 'rub'; frame.setPointerCapture(e.pointerId); if (mode === 'slide') frame.classList.add('drag'); }
+      else { mode = null; return; }
     }
-    if (horiz) set(pos(e));
+    if (mode === 'slide') set(pos(e));
+    else if (mode === 'rub') stamp(e.clientX, e.clientY);
   });
-  const end = () => { drag = false; frame.classList.remove('drag'); };
+  const end = () => { mode = null; pending = false; lastPt = null; frame.classList.remove('drag'); };
   frame.addEventListener('pointerup', end); frame.addEventListener('pointercancel', end);
-  // на тач-экране тянуть пальцем по горизонтали, вертикальный свайп листает страницу
-  frame.addEventListener('touchmove', e => { if (horiz && drag) e.preventDefault(); }, { passive: false });
+  frame.addEventListener('pointerleave', () => { if (!mode) frame.classList.remove('rubbing'); });
+  frame.addEventListener('touchmove', e => { if (mode) e.preventDefault(); }, { passive: false });
   frame.addEventListener('keydown', e => {
     if (e.key === 'ArrowLeft') { set(p - 0.05); e.preventDefault(); }
     if (e.key === 'ArrowRight') { set(p + 0.05); e.preventDefault(); }
@@ -343,12 +405,31 @@ function booking() {
     });
     if (bad.length) { err.textContent = 'Заполните: ' + bad.join(', ').toLowerCase(); return; }
     err.textContent = '';
-    const date = new Date(form.date.value).toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', weekday: 'short' });
-    $('.book__done-s').innerHTML = `${form.cls.value} класс · ${form.svc.value} · ${date}<br>Данные никуда не отправлены и не сохранены.`;
+    // печатаем карточку отчёта; данные остаются только на экране
+    const day = new Date(form.date.value).toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', weekday: 'short' });
+    const digits = form.tel.value.replace(/\D/g, '');
+    const fill = (sel, v) => { const el = $(sel, done); el.textContent = v; el.dataset.v = v; };
+    fill('.pr-no', `Заявка № ${String(500 + Math.floor(Math.random() * 499)).padStart(4, '0')}`);
+    fill('.pr-date', new Date().toLocaleDateString('ru-RU'));
+    fill('.pr-cls', `${form.cls.value} класс`);
+    fill('.pr-svc', form.svc.value);
+    fill('.pr-day', day);
+    fill('.pr-tel', `+7 ••• •••-${digits.slice(7, 9)}-${digits.slice(9, 11)}`);
+    form.classList.add('is-done');
     done.hidden = false;
-    if (gsap && !reduce) gsap.fromTo(done, { clipPath: 'inset(0 0 100% 0)' }, { clipPath: 'inset(0 0 0% 0)', duration: 0.8, ease: 'expo.out' });
+    const card = $('.report--print', done), stampEl = $('.pr-stamp', done);
+    if (gsap && !reduce) {
+      gsap.set(stampEl, { opacity: 0, scale: 2.6 });
+      gsap.timeline()
+        .fromTo(card, { yPercent: -100 }, { yPercent: 0, duration: 1.5, ease: 'steps(18)' })
+        .add(() => $$('.report__d dd, .pr-no', done).forEach((el, i) => setTimeout(() => typeIn(el, 420), i * 70)), 0.3)
+        .to(stampEl, { opacity: 1, scale: 1, duration: 0.28, ease: 'power4.in' }, '+=0.15')
+        .fromTo(card, { x: 0 }, { x: 4, duration: 0.05, repeat: 3, yoyo: true, ease: 'none' })
+        .set(card, { x: 0 });
+    } else { gsap && gsap.set(stampEl, { opacity: 1 }); stampEl.style.opacity = 1; }
+    scrollToHash('#booking');
   });
-  $('.book__reset').addEventListener('click', () => { form.reset(); done.hidden = true; });
+  $('.book__reset').addEventListener('click', () => { form.reset(); done.hidden = true; form.classList.remove('is-done'); });
 }
 
 /* ── док снизу на телефоне */
@@ -368,24 +449,44 @@ function cursor() {
   const c = $('.cursor'), txt = $('.cursor__c');
   const xTo = gsap.quickTo(c, 'x', { duration: 0.25, ease: 'power3' });
   const yTo = gsap.quickTo(c, 'y', { duration: 0.25, ease: 'power3' });
-  let lx = 0, ly = 0;
+  /* курсор-толщиномер: над 3D-поверхностями показывает толщину ЛКП (110–135 мкм),
+     над фоном — «—», над текстом подпись прячется, чтобы не перекрывать его */
+  const TEXT = 'h1,h2,h3,p,a,button,label,input,select,li,dl,blockquote,output,legend,.callout,.t-name,.spec,.chip,.check,.tag';
+  const SURF = '[data-gl], .ba__frame';
+  let px = 0, py = 0, mode = 'bg', val = 122, shown = '';
   addEventListener('pointermove', e => {
     if (e.pointerType !== 'mouse') return;
-    xTo(e.clientX); yTo(e.clientY);
-    if (Math.abs(e.clientX - lx) + Math.abs(e.clientY - ly) > 6) {
-      lx = e.clientX; ly = e.clientY;
-      txt.textContent = `X ${String(Math.round(lx)).padStart(4, '0')} · Y ${String(Math.round(ly + scrollY)).padStart(5, '0')}`;
-    }
+    px = e.clientX; py = e.clientY;
+    xTo(px); yTo(py);
   }, { passive: true });
   document.addEventListener('pointerover', e => {
-    const t = e.target.closest('a, button, label, select, input, [role=slider]');
-    c.classList.toggle('hot', !!t);
-    c.classList.toggle('drag', !!e.target.closest('.ba__frame'));
+    const t = e.target;
+    c.classList.toggle('hot', !!t.closest('a, button, label, select, input, [role=slider]'));
+    c.classList.toggle('drag', !!t.closest('.ba__frame'));
+    const surf = t.closest(SURF);
+    mode = surf ? (surf.classList.contains('ba__frame') ? 'ba' : 'surf') : t.closest(TEXT) ? 'text' : 'bg';
+    c.classList.toggle('mute', mode === 'text');
+  });
+  gsap.ticker.add(time => {
+    let s;
+    if (mode === 'surf' || mode === 'ba') {
+      let target = 122.5 + 8 * Math.sin(px * 0.011 + time * 0.4) * Math.cos(py * 0.009 - time * 0.3) + 3.5 * Math.sin(px * 0.05 + py * 0.04);
+      if (mode === 'ba') { // справа от ручки — после полировки лак тоньше на 2–3 мкм
+        const f = $('.ba__frame').getBoundingClientRect();
+        const p = parseFloat(getComputedStyle($('.ba__frame')).getPropertyValue('--p')) || 0.5;
+        if (px > f.left + f.width * p) target -= 2.6;
+      }
+      target = Math.max(110, Math.min(135, target));
+      val += (target - val) * 0.12;
+      s = `${val.toFixed(1).replace('.', ',')} мкм`;
+    } else s = '— мкм';
+    if (s !== shown) { shown = s; txt.textContent = s; }
   });
   document.addEventListener('pointerleave', () => gsap.to(c, { opacity: 0, duration: 0.2 }));
   document.addEventListener('pointerenter', () => gsap.to(c, { opacity: 1, duration: 0.2 }));
 
   $$('[data-magnetic]').forEach(b => {
+    if (b.closest('.header')) return; // в шапке без магнита — там рядом кнопки
     const bx = gsap.quickTo(b, 'x', { duration: 0.5, ease: 'elastic.out(1,0.5)' });
     const by = gsap.quickTo(b, 'y', { duration: 0.5, ease: 'elastic.out(1,0.5)' });
     b.addEventListener('pointermove', e => {
@@ -419,7 +520,23 @@ function ruler() {
 /* ── запуск */
 ruler();
 bootHero().then(() => { if (introDone && hero) hero.showTags(0); });
-if (document.fonts && document.fonts.ready) Promise.race([document.fonts.ready, new Promise(r => setTimeout(r, 1500))]).then(heroIntro); else heroIntro();
+heroHost.addEventListener('gl-mark', e => typeIn(e.detail, 600));
+// интро после прелоадера-калибровки (и шрифтов, но не дольше 1,5 с)
+Promise.all([window.__pre || Promise.resolve(), document.fonts ? Promise.race([document.fonts.ready, new Promise(r => setTimeout(r, 1500))]) : 0]).then(heroIntro);
+initTorch({ mobile });
+// счётчик карусели отчётов (телефон)
+(() => {
+  const list = $('.reports__list'), nav = $('.reports__nav'), idx = $('.reports__i');
+  if (!list || !nav) return;
+  list.addEventListener('scroll', () => {
+    const cards = $$('.report', list), mid = list.scrollLeft + list.clientWidth / 2;
+    let best = 0, bd = 1e9;
+    cards.forEach((c, i) => { const d = Math.abs(c.offsetLeft + c.offsetWidth / 2 - mid); if (d < bd) { bd = d; best = i; } });
+    idx.textContent = best + 1; nav.style.setProperty('--ri', best);
+  }, { passive: true });
+})();
+initDrops();
+initShine();
 bootLayers();
 reveals();
 beforeAfter();
