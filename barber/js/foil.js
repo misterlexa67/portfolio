@@ -10,6 +10,18 @@ export const ROLES = {
   bump: () => ({ base: '#808080', foil: '#f2f2f2', ink: '#585858', blur: 2.4 })
 };
 
+/* уступить главный поток: тяжёлую подготовку 3D делим на куски между кадрами */
+export const yieldIdle = () => new Promise(r => (window.requestIdleCallback ? requestIdleCallback(r, { timeout: 120 }) : setTimeout(r, 16)));
+export async function canvasesAsync(W, H, paint, colors, pattern, scale, roles) {
+  const out = {};
+  for (const r of roles) { Object.assign(out, canvases(W, H, paint, colors, pattern, scale, [r])); await yieldIdle(); }
+  return out;
+}
+export async function warmUp(renderer, scene, camera, tx) {
+  for (const k in tx) if (tx[k]) { renderer.initTexture(tx[k]); await yieldIdle(); }
+  if (renderer.compileAsync) await renderer.compileAsync(scene, camera); else renderer.compile(scene, camera);
+}
+
 export function fontsReady() {
   return Promise.all([
     document.fonts.load('600 100px "Cormorant Garamond"'),
@@ -31,11 +43,11 @@ export function diamond(ctx, x, y, s) {
   ctx.save(); ctx.translate(x, y); ctx.rotate(Math.PI / 4); ctx.fillRect(-s / 2, -s / 2, s, s); ctx.restore();
 }
 
-export function canvases(W, H, paint, colors, paperPattern) {
+export function canvases(W, H, paint, colors, paperPattern, scale = 1, roles = ['map', 'metal', 'rough', 'bump']) {
   const out = {};
-  for (const role of ['map', 'metal', 'rough', 'bump']) {
-    const c = document.createElement('canvas'); c.width = W; c.height = H;
-    const ctx = c.getContext('2d');
+  for (const role of roles) {
+    const c = document.createElement('canvas'); c.width = Math.round(W * scale); c.height = Math.round(H * scale);
+    const ctx = c.getContext('2d'); ctx.scale(scale, scale);
     const C = role === 'map' ? ROLES.map(colors.base, colors.foil, colors.ink) : ROLES[role]();
     C.role = role; C.pattern = paperPattern;
     paint(ctx, C);
@@ -47,10 +59,13 @@ export function canvases(W, H, paint, colors, paperPattern) {
 export function textures(renderer, cs) {
   const an = renderer.capabilities.getMaxAnisotropy();
   const t = (c, srgb) => { const x = new THREE.CanvasTexture(c); if (srgb) x.colorSpace = THREE.SRGBColorSpace; x.anisotropy = an; return x; };
-  return { map: t(cs.map, true), metal: t(cs.metal), rough: t(cs.rough), bump: t(cs.bump) };
+  return { map: t(cs.map, true), metal: cs.metal && t(cs.metal), rough: cs.rough && t(cs.rough), bump: cs.bump && t(cs.bump) };
 }
 
-export function foilMaterial(tx, { bumpScale = 2.2, iridescence = .45, roughness = .95 } = {}) {
+export function foilMaterial(tx, { bumpScale = 2.2, iridescence = .45, roughness = .95, lite = false } = {}) {
+  // телефон: обычный PBR без радужной плёнки и рельефа — в разы дешевле во фрагментном шейдере
+  // без карты окружения (её генерация — ~100 мс на телефоне): фольга — «полуметалл», блеск даёт движущийся свет
+  if (lite) return new THREE.MeshStandardMaterial({ map: tx.map, metalnessMap: tx.metal, metalness: .35, roughnessMap: tx.rough, roughness });
   return new THREE.MeshPhysicalMaterial({
     map: tx.map, metalnessMap: tx.metal, metalness: 1, roughnessMap: tx.rough, roughness,
     bumpMap: tx.bump, bumpScale, iridescence, iridescenceMap: tx.metal, iridescenceIOR: 1.35, iridescenceThicknessRange: [180, 420]

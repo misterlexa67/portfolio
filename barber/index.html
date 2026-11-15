@@ -9,7 +9,12 @@
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' fill='%230F2A22'/%3E%3Ccircle cx='32' cy='32' r='24' fill='none' stroke='%23B08D57' stroke-width='2'/%3E%3Cellipse cx='32' cy='32' rx='9' ry='13' fill='none' stroke='%23B08D57' stroke-width='4'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Jost:wght@300;400;500&family=Marck+Script&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+<link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
+<link rel="preload" as="font" type="font/woff2" crossorigin href="https://fonts.gstatic.com/s/cormorantgaramond/v21/co3bmX5slCNuHLi8bLeY9MK7whWMhyjYrXtKgS4.woff2">
+<link rel="preload" as="image" href="assets/hero-static.webp" fetchpriority="high">
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,400;1,500&family=Jost:wght@400;500&family=Marck+Script&display=swap" onload="this.onload=null;this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,400;1,500&family=Jost:wght@400;500&family=Marck+Script&display=swap"></noscript>
 <link rel="stylesheet" href="css/style.css">
 <script>
 (function(){var h=document.documentElement;h.classList.add('js');
@@ -86,7 +91,7 @@ if(seen||rm||/[?&]noentry/.test(location.search))h.classList.add('entered');})()
 <section class="hero" id="top" data-ink="light">
   <div class="hero-velvet"></div><div class="hero-vig"></div>
   <div class="hero-gl" data-gl="hero"><canvas aria-hidden="true"></canvas>
-    <img class="hero-static" src="assets/hero-static.webp" alt="" width="900" height="900" loading="lazy" decoding="async">
+    <img class="hero-static" src="assets/hero-static.webp" alt="" width="544" height="718" fetchpriority="high" decoding="async">
   </div>
   <div class="hero-copy">
     <p class="label">Вы приглашены</p>
@@ -94,7 +99,8 @@ if(seen||rm||/[?&]noentry/.test(location.search))h.classList.add('entered');})()
     <p class="hero-sub">Барбер-клуб. Нижний Новгород</p>
     <div class="hero-row">
       <a class="btn foil" href="#rsvp"><span>Получить приглашение</span><svg><use href="#i-arrow"/></svg></a>
-      <span class="hint"><span class="h-mouse">Ведите курсором — фольга ловит свет</span><span class="h-touch">Наклоните телефон</span></span>
+      <span class="hint"><span class="h-mouse">Ведите курсором — фольга ловит свет</span><span class="h-touch">Проведите пальцем по экрану</span></span>
+      <button class="tilt-btn" type="button" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="7" y="3" width="10" height="18" rx="2" fill="none" stroke="currentColor" stroke-width="1.3" transform="rotate(-14 12 12)"/><path d="M3 9c-1 2-1 4 0 6M21 9c1 2 1 4 0 6" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg><span>Включить наклон</span></button>
     </div>
   </div>
 </section>
@@ -394,9 +400,9 @@ if(seen||rm||/[?&]noentry/.test(location.search))h.classList.add('entered');})()
 
 <a class="sticky-cta" href="#rsvp"><span>Записаться</span><svg><use href="#i-arrow"/></svg></a>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/lenis@1.1.13/dist/lenis.min.js"></script>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/lenis@1.1.13/dist/lenis.min.js"></script>
 <script type="module" src="js/main.js"></script>
 </body>
 </html>

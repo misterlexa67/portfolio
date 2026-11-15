@@ -1,26 +1,30 @@
 import * as THREE from 'three';
-import { canvases, textures, foilMaterial, roomEnv, fontsReady, softShadowTexture } from './foil.js';
+import { canvases, canvasesAsync, textures, foilMaterial, roomEnv, fontsReady, softShadowTexture, yieldIdle, warmUp } from './foil.js';
 import { paintCard, CW, CH, TIERS } from './cardface.js';
 
 /* Членская карта клуба в 3D: «выезжает» из латунной прорези, имя тиснится по буквам,
    крутится пальцем/мышью (по горизонтали — вертикальный скролл не блокируется). */
 export async function initCard({ host, mobile, onWeak }) {
+  const lite = mobile;
   const canvas = host.querySelector('canvas');
-  const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+  const renderer = new THREE.WebGLRenderer({ canvas, antialias: !lite, alpha: true, powerPreference: 'high-performance' });
   renderer.setPixelRatio(Math.min(devicePixelRatio, mobile ? 1.5 : 2));
   renderer.toneMapping = THREE.ACESFilmicToneMapping; renderer.toneMappingExposure = .8;
   renderer.outputColorSpace = THREE.SRGBColorSpace;
   const scene = new THREE.Scene();
-  scene.environment = roomEnv(renderer); scene.environmentIntensity = .22;
+  if (!lite) { scene.environment = roomEnv(renderer); scene.environmentIntensity = .22; }
+  else scene.add(new THREE.HemisphereLight('#fff4dc', '#1a140c', 1.1));
   const camera = new THREE.PerspectiveCamera(28, 1, .1, 50); camera.position.set(0, 0, 6);
-  await fontsReady();
+  await Promise.all([fontsReady(), window.OSB.ready]);
 
   const data = { name: '', tier: 'member', no: '0427', date: '', reveal: 1 };
-  let cs = canvases(CW, CH, (ctx, C) => paintCard(ctx, C, data), {}, window.OSB.linen);
+  const S = lite ? .5 : 1, ROLES = lite ? ['map', 'metal', 'rough'] : ['map', 'metal', 'rough', 'bump'];
+  await yieldIdle();
+  let cs = await canvasesAsync(CW, CH, (ctx, C) => paintCard(ctx, C, data), {}, window.OSB.linen, S, ROLES);
   let tx = textures(renderer, cs);
-  const front = foilMaterial(tx, { bumpScale: 1.8, iridescence: .35 });
+  const front = foilMaterial(tx, { bumpScale: 1.8, iridescence: .35, lite });
   front.specularIntensity = .35;
-  const edge = new THREE.MeshStandardMaterial({ color: '#C9A46A', metalness: 1, roughness: .28 });
+  const edge = new THREE.MeshStandardMaterial({ color: '#C9A46A', metalness: lite ? .4 : 1, roughness: .28 });
   const backC = document.createElement('canvas'); backC.width = 600; backC.height = 378;
   const backT = new THREE.CanvasTexture(backC); backT.colorSpace = THREE.SRGBColorSpace;
   const back = new THREE.MeshStandardMaterial({ map: backT, roughness: .8 });
@@ -33,6 +37,8 @@ export async function initCard({ host, mobile, onWeak }) {
   const key = new THREE.DirectionalLight('#fff0d6', 1); key.position.set(-2, 3, 4); scene.add(key);
   const spot = new THREE.PointLight('#ffeacc', 10, 10, 1.6); spot.position.set(1, 1, 2.4); scene.add(spot);
 
+  await yieldIdle();
+  await warmUp(renderer, scene, camera, { ...tx, back: backT });
   function paintBack() {
     const T = TIERS[data.tier], g = backC.getContext('2d');
     g.fillStyle = T.base; g.fillRect(0, 0, 600, 378);
@@ -41,10 +47,10 @@ export async function initCard({ host, mobile, onWeak }) {
     g.font = '500 13px "Jost"'; g.fillText('ПРЕДЪЯВИТЕЛЬ — ЧЛЕН КЛУБА «ОСОБНЯК» · ДЕМО', 300, 320);
     backT.needsUpdate = true;
   }
-  function repaint() {
-    const roles = { map: 'map', metal: 'metal', rough: 'rough', bump: 'bump' };
-    for (const r in roles) {
+  function repaint(quick) {
+    for (const r of (quick ? ['map', 'metal'] : ROLES)) {
       const c = cs[r], ctx = c.getContext('2d');
+      ctx.setTransform(S, 0, 0, S, 0, 0);
       const C = r === 'map' ? { role: 'map', pattern: window.OSB.linen }
         : r === 'metal' ? { role: r, base: '#000', foil: '#fff', ink: '#000' }
           : r === 'rough' ? { role: r, base: '#d8d8d8', foil: '#4a4a4a', ink: '#c8c8c8' }
@@ -52,7 +58,7 @@ export async function initCard({ host, mobile, onWeak }) {
       ctx.clearRect(0, 0, CW, CH);
       paintCard(ctx, C, data);
     }
-    tx.map.needsUpdate = tx.metal.needsUpdate = tx.rough.needsUpdate = tx.bump.needsUpdate = true;
+    for (const r of (quick ? ['map', 'metal'] : ROLES)) tx[r].needsUpdate = true;
   }
 
   function layout() {
@@ -82,7 +88,7 @@ export async function initCard({ host, mobile, onWeak }) {
     if (dead || !visible) { last = performance.now(); return; }
     const now = performance.now(), dt = now - last; last = now;
     frames++; if (frames > 20 && frames <= 100) probe += dt;
-    if (frames === 100 && probe / 80 > 36) { dead = true; renderer.setAnimationLoop(null); onWeak && onWeak(); return; }
+    if (frames === 100 && probe / 80 > 25) { dead = true; renderer.setAnimationLoop(null); onWeak && onWeak(); return; }
     const t = clock.getElapsedTime();
     if (!drag) { vel *= .94; rotY += vel; rotY += (Math.sin(t * .4) * .25 - rotY) * .01 * (Math.abs(vel) < .002 ? 1 : 0); rotX += (.1 - rotX) * .03; }
     card.rotation.y = rotY; card.rotation.x = rotX;
@@ -107,12 +113,13 @@ export async function initCard({ host, mobile, onWeak }) {
         const r = Math.max(0, Math.min(1, (k - .4) / .55));
         const len = Math.max(1, [...(data.name || 'Ваше имя')].length);
         const q = Math.round(r * len * 2) / (len * 2);
-        if (q !== data.reveal) { data.reveal = q; repaint(); }
+        if (q !== data.reveal) { data.reveal = q; repaint(true); }
         if (k < 1) requestAnimationFrame(step); else { rise = 1; data.reveal = 1; repaint(); vel = .06; res(); }
       };
       requestAnimationFrame(step);
     });
   }
   function shot() { renderer.render(scene, camera); return canvas.toDataURL('image/png'); }
-  return { print, shot, data };
+  function kill() { dead = true; renderer.setAnimationLoop(null); renderer.dispose(); }
+  return { print, shot, data, kill };
 }

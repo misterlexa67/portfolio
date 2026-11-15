@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { fontsReady, spaced, diamond, canvases, textures, foilMaterial, roomEnv, softShadowTexture } from './foil.js';
+import { fontsReady, spaced, diamond, canvases, canvasesAsync, textures, foilMaterial, roomEnv, softShadowTexture, yieldIdle, warmUp } from './foil.js';
 
 /* Карточка-приглашение: плотная кремовая бумага, латунная фольга, золочёный обрез. */
 const W = 1024, H = 1434;
@@ -45,19 +45,22 @@ function paintInvite(ctx, C) {
 }
 
 export async function initHero({ host, mobile, input, onWeak, delay = 0 }) {
+  const lite = mobile;
   const canvas = host.querySelector('canvas');
-  const renderer = new THREE.WebGLRenderer({ canvas, antialias: !mobile, alpha: true, powerPreference: 'high-performance' });
+  const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true, powerPreference: 'high-performance' });
   renderer.setPixelRatio(Math.min(devicePixelRatio, mobile ? 1.5 : 2));
   renderer.toneMapping = THREE.ACESFilmicToneMapping; renderer.toneMappingExposure = .82;
   renderer.outputColorSpace = THREE.SRGBColorSpace;
 
   const scene = new THREE.Scene();
-  scene.environment = roomEnv(renderer); scene.environmentIntensity = .55;
+  if (!lite) { scene.environment = roomEnv(renderer); scene.environmentIntensity = .55; }
+  else scene.add(new THREE.HemisphereLight('#fff4dc', '#14100a', 1.2));
   const camera = new THREE.PerspectiveCamera(30, 1, .1, 50); camera.position.set(0, 0, 6.2);
 
-  await fontsReady();
-  const cs = canvases(W, H, paintInvite, { base: '#EFE6D2', foil: '#C9A46A', ink: '#0a1f18' }, window.OSB.linen);
-  const front = foilMaterial(textures(renderer, cs), { iridescence: mobile ? .3 : .45 });
+  await Promise.all([fontsReady(), window.OSB.ready]);
+  await yieldIdle();
+  const cs = await canvasesAsync(W, H, paintInvite, { base: '#EFE6D2', foil: '#C9A46A', ink: '#0a1f18' }, window.OSB.linen, lite ? .6 : 1, lite ? ['map', 'metal', 'rough'] : ['map', 'metal', 'rough', 'bump']);
+  const front = foilMaterial(textures(renderer, cs), { iridescence: .45, lite });
 
   const bc = document.createElement('canvas'); bc.width = 512; bc.height = 717;
   const bx = bc.getContext('2d');
@@ -66,7 +69,7 @@ export async function initHero({ host, mobile, input, onWeak, delay = 0 }) {
   bx.fillStyle = '#B08D57'; bx.font = '600 90px "Cormorant Garamond"'; bx.textAlign = 'center'; bx.fillText('О', 256, 390);
   const bt = new THREE.CanvasTexture(bc); bt.colorSpace = THREE.SRGBColorSpace;
   const back = new THREE.MeshStandardMaterial({ map: bt, roughness: .95 });
-  const edge = new THREE.MeshStandardMaterial({ color: '#C9A46A', metalness: 1, roughness: .3 });
+  const edge = new THREE.MeshStandardMaterial({ color: '#C9A46A', metalness: lite ? .4 : 1, roughness: .3 });
   const card = new THREE.Mesh(new THREE.BoxGeometry(1.43, 2, .045), [edge, edge, edge, edge, front, back]);
   const rig = new THREE.Group(); rig.add(card); scene.add(rig);
 
@@ -76,11 +79,13 @@ export async function initHero({ host, mobile, input, onWeak, delay = 0 }) {
   const key = new THREE.DirectionalLight('#fff0d6', 1.1); key.position.set(-2, 3, 4); scene.add(key);
   const spot = new THREE.PointLight('#ffeacc', 18, 10, 1.6); scene.add(spot);
 
+  await yieldIdle();
+  await warmUp(renderer, scene, camera, { map: front.map, m: front.metalnessMap, r: front.roughnessMap, b: front.bumpMap, back: bt });
   function layout() {
     const w = host.clientWidth, h = host.clientHeight;
     renderer.setSize(w, h, false); camera.aspect = w / h; camera.updateProjectionMatrix();
     const vh = 2 * Math.tan(THREE.MathUtils.degToRad(15)) * 6.2, vw = vh * camera.aspect;
-    if (camera.aspect < .85) { rig.scale.setScalar(.72); rig.position.set(0, vh * .17, 0); }
+    if (camera.aspect < .85) { rig.scale.setScalar(.6); rig.position.set(0, vh * .2, 0); }
     else { const s = Math.min(1, camera.aspect / 1.2); rig.scale.setScalar(.86 * s + .04); rig.position.set(vw * .29, .16, 0); }
   }
   layout();
@@ -98,7 +103,7 @@ export async function initHero({ host, mobile, input, onWeak, delay = 0 }) {
     const now = performance.now(), dt = now - last; last = now;
     frames++;
     if (frames > 20 && frames <= 110) probe += dt;
-    if (frames === 110 && probe / 90 > 34) { kill(); onWeak && onWeak(); return; }
+    if (frames === 110 && probe / 90 > 25) { kill(); onWeak && onWeak(); return; }
     const t = clock.getElapsedTime(), mx = input.x, my = input.y, idle = reduce ? 0 : 1;
     intro = Math.min(1, Math.max(0, (now - t0) / 1400));
     const e = 1 - Math.pow(1 - intro, 3);
@@ -116,6 +121,7 @@ export async function initHero({ host, mobile, input, onWeak, delay = 0 }) {
   function kill() { dead = true; renderer.setAnimationLoop(null); renderer.dispose(); canvas.style.display = 'none'; }
   /* для генерации статичного кадра-заглушки */
   window.__heroShot = () => { renderer.render(scene, camera); return canvas.toDataURL('image/webp', .9); };
-  host.classList.add('gl-on');
+  renderer.render(scene, camera);
+  requestAnimationFrame(() => host.classList.add('gl-on'));
   return { kill };
 }

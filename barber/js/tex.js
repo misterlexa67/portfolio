@@ -95,17 +95,26 @@
 
   const url = c => { try { return c.toDataURL('image/webp', .9); } catch (e) { return c.toDataURL(); } };
   const st = document.documentElement.style;
-  const pap = paper(320, 5);
-  const oakV = planks(720, 110, 3, false, 3);
-  st.setProperty('--paper-tex', `url(${url(pap)})`);
-  st.setProperty('--oak-v', `url(${url(oakV)})`);
-  window.OSB = { makeNoise, paper: pap, linen: pap, oakV };
-
-  const later = () => {
-    const oakH = planks(1280, 128, 5, true, 8), fe = felt(256, 21);
-    st.setProperty('--oak-h', `url(${url(oakH)})`);
-    st.setProperty('--felt', `url(${url(fe)})`);
-    window.OSB.oakH = oakH;
-  };
-  if (window.requestIdleCallback) requestIdleCallback(later, { timeout: 300 }); else setTimeout(later, 40);
+  const OSB = window.OSB = { makeNoise };
+  const mobile = matchMedia('(pointer: coarse)').matches || innerWidth < 900;
+  // дуб для дверей входа — сразу, но только если двери будут показаны
+  const makeOak = () => { if (OSB.oakV) return; OSB.oakV = planks(720, 110, 3, false, 3); st.setProperty('--oak-v', `url(${url(OSB.oakV)})`); };
+  if (!document.documentElement.classList.contains('entered')) makeOak();
+  // остальное — после первой отрисовки, частями, чтобы не блокировать поток
+  const idle = (fn, t) => window.requestIdleCallback ? requestIdleCallback(fn, { timeout: t }) : setTimeout(fn, 30);
+  OSB.ready = new Promise(res => {
+    idle(() => {
+      const pap = paper(mobile ? 256 : 320, 5);
+      OSB.paper = OSB.linen = pap;
+      st.setProperty('--paper-tex', `url(${url(pap)})`);
+      res();
+      idle(() => {
+        makeOak();
+        idle(() => {
+          OSB.oakH = planks(1280, 128, 5, true, 8);
+          st.setProperty('--oak-h', `url(${url(OSB.oakH)})`);
+        }, 2000);
+      }, 1500);
+    }, 400);
+  });
 })();

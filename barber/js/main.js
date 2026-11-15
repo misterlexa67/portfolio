@@ -88,24 +88,74 @@ new IntersectionObserver(es => es.forEach(e => { e.isIntersecting ? offZones.add
 new IntersectionObserver(es => es.forEach(e => { e.isIntersecting ? offZones.add(e.target) : offZones.delete(e.target); sticky.classList.toggle('off', offZones.size > 0); }))
   .observe($('.foot'));
 
-/* ── ввод: курсор или наклон телефона */
-const INPUT = { x: 0, y: 0, tx: 0, ty: 0 };
-addEventListener('pointermove', e => { if (e.pointerType === 'mouse') { INPUT.tx = e.clientX / innerWidth * 2 - 1; INPUT.ty = e.clientY / innerHeight * 2 - 1; } }, { passive: true });
-function onTilt(e) { if (e.gamma == null) return; INPUT.tx = clamp(e.gamma / 25, -1, 1); INPUT.ty = clamp((e.beta - 45) / 25, -1, 1); }
-if (window.DeviceOrientationEvent && coarse) {
-  if (typeof DeviceOrientationEvent.requestPermission === 'function') {
-    addEventListener('touchend', function ask() {
-      DeviceOrientationEvent.requestPermission().then(s => { if (s === 'granted') addEventListener('deviceorientation', onTilt); }).catch(() => {});
-    }, { once: true });
-  } else addEventListener('deviceorientation', onTilt);
+/* ── ввод: курсор, касание или наклон телефона */
+const INPUT = { x: 0, y: 0, tx: 0, ty: 0, tilt: false };
+addEventListener('pointermove', e => {
+  if (INPUT.tilt) return;
+  INPUT.tx = e.clientX / innerWidth * 2 - 1; INPUT.ty = e.clientY / innerHeight * 2 - 1;
+}, { passive: true });
+// без разрешения на наклон всё работает от пальца: ведёшь по экрану — фольга и слои откликаются
+addEventListener('touchmove', e => {
+  if (INPUT.tilt || !e.touches[0]) return;
+  INPUT.tx = e.touches[0].clientX / innerWidth * 2 - 1; INPUT.ty = e.touches[0].clientY / innerHeight * 2 - 1;
+}, { passive: true });
+function onTilt(e) {
+  if (e.gamma == null) return;
+  INPUT.tilt = true;
+  INPUT.tx = clamp(e.gamma / 25, -1, 1); INPUT.ty = clamp((e.beta - 45) / 25, -1, 1);
 }
+(function tiltSetup() {
+  if (!window.DeviceOrientationEvent || !coarse || reduce) return;
+  const btn = $('.tilt-btn');
+  if (typeof DeviceOrientationEvent.requestPermission !== 'function') { addEventListener('deviceorientation', onTilt, { passive: true }); return; }
+  // iOS: наклон только по явному разрешению — аккуратная кнопка в hero
+  let granted = false;
+  try { granted = localStorage.getItem('osb-tilt') === 'granted'; } catch (e) {}
+  const enable = () => DeviceOrientationEvent.requestPermission().then(s => {
+    btn.hidden = true;
+    if (s === 'granted') { addEventListener('deviceorientation', onTilt, { passive: true }); try { localStorage.setItem('osb-tilt', 'granted'); } catch (e) {} }
+  }).catch(() => { btn.hidden = false; });
+  if (granted) { addEventListener('touchend', enable, { once: true }); return; }
+  btn.hidden = false;
+  btn.addEventListener('click', enable);
+})();
+
+/* ── облегчённый режим: включается сам, если при скролле меньше 40 fps */
+const LITE = { on: false, hooks: [] };
+function goLite(reason) {
+  if (LITE.on) return; LITE.on = true; root.classList.add('lite');
+  LITE.hooks.forEach(f => { try { f(); } catch (e) {} });
+  console.info('[osobnyak] облегчённый режим:', reason);
+}
+if (qs.has('lite')) setTimeout(() => goLite('параметр'), 0);
+(function fpsWatch() {
+  if (reduce) return;
+  let scrolling = 0, frames = 0, t0 = 0, bad = 0;
+  addEventListener('scroll', () => { scrolling = performance.now(); }, { passive: true });
+  (function f(now) {
+    if (LITE.on) return;
+    if (now - scrolling < 150) {
+      if (!t0) { t0 = now; frames = 0; }
+      frames++;
+      if (now - t0 > 1500) { const fps = frames * 1000 / (now - t0); bad = fps < 40 ? bad + 1 : 0; t0 = 0; if (bad >= 2) goLite('fps ' + Math.round(fps)); }
+    } else t0 = 0;
+    requestAnimationFrame(f);
+  })(performance.now());
+})();
+
+/* ── фольга на латунных заголовках и бархат hero — только когда hero виден и что-то сдвинулось */
 const brassEls = $$('.brass-text'), heroEl = $('.hero');
+let heroVis = true;
+new IntersectionObserver(es => { heroVis = es[0].isIntersecting; }).observe(heroEl);
+let lastFx = -1;
 (function tick() {
   INPUT.x += (INPUT.tx - INPUT.x) * .08; INPUT.y += (INPUT.ty - INPUT.y) * .08;
-  const fx = (50 + INPUT.x * 42).toFixed(1) + '%';
-  brassEls.forEach(el => el.style.setProperty('--fx', fx));
-  heroEl.style.setProperty('--sx', (50 + INPUT.x * 22).toFixed(1) + '%');
-  heroEl.style.setProperty('--sy', (40 + INPUT.y * 16).toFixed(1) + '%');
+  if (heroVis && Math.abs(INPUT.x - lastFx) > .004) {
+    lastFx = INPUT.x;
+    const fx = (50 + INPUT.x * 42).toFixed(1) + '%';
+    brassEls.forEach(el => el.style.setProperty('--fx', fx));
+    if (!mobile) { heroEl.style.setProperty('--sx', (50 + INPUT.x * 22).toFixed(1) + '%'); heroEl.style.setProperty('--sy', (40 + INPUT.y * 16).toFixed(1) + '%'); }
+  }
   requestAnimationFrame(tick);
 })();
 
@@ -165,38 +215,53 @@ function magnet(b) {
 }
 $$('.btn').forEach(magnet);
 
-/* ── листы: каждая секция ложится на предыдущую, как плотная бумага */
-if (gsap && !reduce) {
+/* ── листы: каждая секция ложится на предыдущую (только десктоп; на телефоне во время скролла ничего не пересчитывается) */
+if (gsap && !reduce && !mobile) {
   $$('.sheet').forEach(s => {
-    const ang = mobile ? 0 : 4;
     ScrollTrigger.create({
       trigger: s, start: 'top bottom', end: 'top 30%', scrub: true,
       onUpdate(self) {
+        if (LITE.on) { s.style.transform = ''; return; }
         const p = self.progress, k = 1 - p;
-        s.style.transform = p < 1 && ang ? `perspective(2000px) rotateX(${(-k * ang).toFixed(2)}deg)` : '';
+        s.style.transform = p < 1 ? `perspective(2000px) rotateX(${(-k * 4).toFixed(2)}deg)` : '';
         s.style.setProperty('--sh', (k * .9).toFixed(3));
       }
     });
   });
 }
 
-/* ── HERO */
+/* ── HERO: сначала лёгкая WebP-карточка, 3D подменяет её, когда страница загрузилась */
+let heroApi = null;
 async function bootHero() {
   const host = $('[data-gl="hero"]');
-  if (!useGL) { staticHero(); return; }
+  if (!useGL || LITE.on) { staticHero(); return; }
   try {
     const m = await import('./gl-hero.js');
-    await m.initHero({ host, mobile, input: INPUT, delay: root.classList.contains('entered') ? 0 : 750, onWeak: () => { root.classList.add('no-gl'); staticHero(); } });
+    heroApi = await m.initHero({ host, mobile, input: INPUT, delay: 0, onWeak: () => { heroApi = null; root.classList.add('no-gl'); staticHero(); } });
+    if (LITE.on && heroApi) { heroApi.kill(); heroApi = null; root.classList.add('no-gl'); staticHero(); }
   } catch (err) { console.warn('[osobnyak] 3D отключено', err); root.classList.add('no-gl'); staticHero(); }
 }
+let staticOn = false;
 function staticHero() {
+  if (staticOn) return; staticOn = true;
   const img = $('.hero-static');
-  img.loading = 'eager';
   if (reduce) return;
   const base = mobile ? 'translate(50%,-50%)' : 'translateY(-50%)';
-  (function loop() { img.style.transform = `${base} perspective(900px) rotateY(${(INPUT.x * 10).toFixed(2)}deg) rotateX(${(-INPUT.y * 7).toFixed(2)}deg)`; requestAnimationFrame(loop); })();
+  let lx = 9, ly = 9;
+  (function loop() {
+    if (heroVis && (Math.abs(INPUT.x - lx) > .003 || Math.abs(INPUT.y - ly) > .003)) {
+      lx = INPUT.x; ly = INPUT.y;
+      img.style.transform = `${base} perspective(900px) rotateY(${(lx * 10).toFixed(2)}deg) rotateX(${(-ly * 7).toFixed(2)}deg)`;
+    }
+    requestAnimationFrame(loop);
+  })();
 }
-bootHero();
+LITE.hooks.push(() => { if (heroApi) { heroApi.kill(); heroApi = null; root.classList.add('no-gl'); staticHero(); } });
+// 3D не мешает первому экрану: после load и свободной минуты главного потока
+const afterLoad = fn => (document.readyState === 'complete' ? Promise.resolve() : new Promise(r => addEventListener('load', r, { once: true })))
+  .then(() => new Promise(r => (window.requestIdleCallback ? requestIdleCallback(r, { timeout: mobile ? 1500 : 400 }) : setTimeout(r, 200))))
+  .then(fn);
+afterLoad(bootHero);
 
 /* ── МАНИФЕСТ: слова проявляются, как чернила */
 (function () {
@@ -229,7 +294,8 @@ bootHero();
     }
   };
   apply(0);
-  ScrollTrigger.create({ trigger: box, start: 'top 82%', end: 'bottom 45%', scrub: .4, onUpdate: self => apply(self.progress) });
+  const st = ScrollTrigger.create({ trigger: box, start: 'top 82%', end: 'bottom 45%', scrub: .4, onUpdate: self => { if (!LITE.on) apply(self.progress); } });
+  LITE.hooks.push(() => { st.kill(); words.forEach(w => w.style.removeProperty('--o')); });
 })();
 
 /* ── ЧЛЕНСТВО: веер карт */
@@ -262,7 +328,7 @@ bootHero();
   }, { passive: true });
   // фольга от наклона телефона
   if (!fine) (function loop() {
-    if (idx >= 0) { const c = cards[idx]; c.style.setProperty('--mx', (50 + INPUT.x * 45).toFixed(1) + '%'); c.style.setProperty('--my', (35 + INPUT.y * 30).toFixed(1) + '%'); }
+    if (idx >= 0 && INPUT.tilt && !LITE.on) { const c = cards[idx]; c.style.setProperty('--mx', (50 + INPUT.x * 45).toFixed(1) + '%'); c.style.setProperty('--my', (35 + INPUT.y * 30).toFixed(1) + '%'); }
     requestAnimationFrame(loop);
   })();
   $$('.mc-btn').forEach(b => b.addEventListener('click', () => setTier(b.dataset.tier)));
@@ -523,6 +589,7 @@ $$('.frame').forEach(f => {
   const VB = innerWidth < 760 ? '310 0 900 700' : '0 0 1200 700';
   const layers = [];
   function layer(depth, inner, shadow = true) {
+    shadow = shadow && !mobile; // на телефоне без SVG-фильтров: их растеризация на DPR 3 дорогая
     const svg = document.createElementNS(NS, 'svg');
     svg.setAttribute('viewBox', VB); svg.setAttribute('preserveAspectRatio', 'xMidYMax slice');
     const fid = 'dsh' + depth;
@@ -559,8 +626,6 @@ $$('.frame').forEach(f => {
       <linearGradient id="dPole" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#6f5430"/><stop offset=".5" stop-color="#e9d6a6"/><stop offset="1" stop-color="#6f5430"/></linearGradient>
       <linearGradient id="dGlass" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#5a3412"/><stop offset=".4" stop-color="#b9772e"/><stop offset="1" stop-color="#4a2a0e"/></linearGradient>
     </defs>
-    <circle class="d-glow" cx="960" cy="330" r="360" fill="url(#dGlow)" style="mix-blend-mode:screen"/>
-    <path class="d-cone" d="M896 344 L1024 344 L1160 700 L760 700 Z" fill="url(#dCone)" style="mix-blend-mode:screen"/>
     <ellipse cx="960" cy="652" rx="58" ry="10" fill="#1a120b"/>
     <rect x="955" y="340" width="10" height="312" fill="url(#dPole)"/>
     <path d="M888 346 L1032 346 L1004 246 L916 246 Z" fill="url(#dShade)"/>
@@ -572,7 +637,10 @@ $$('.frame').forEach(f => {
       <ellipse cx="-10" cy="428" rx="9" ry="7" fill="#c9a46a"/>
       <path d="M26 494 L30 518 H50 L54 494 Z" fill="#c98a3c" opacity=".7"/><path d="M26 494 L30 518 H50 L54 494" fill="none" stroke="#f1dfb2" stroke-opacity=".5"/>
     </g>`;
+  const lightSvg = layer(12, `<defs><radialGradient id="dGlowL" cx="50%" cy="50%" r="50%"><stop offset="0" stop-color="#ffd99a" stop-opacity=".55"/><stop offset=".35" stop-color="#e2a95c" stop-opacity=".2"/><stop offset="1" stop-color="#b08d57" stop-opacity="0"/></radialGradient><linearGradient id="dConeL" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffd99a" stop-opacity=".26"/><stop offset="1" stop-color="#ffd99a" stop-opacity="0"/></linearGradient></defs><circle cx="960" cy="330" r="360" fill="url(#dGlowL)"/><path d="M896 344 L1024 344 L1160 700 L760 700 Z" fill="url(#dConeL)"/>`, false);
+  lightSvg.classList.add('d-light');
   layer(12, lamp);
+
   let chair = `<defs>
       <linearGradient id="dLeather" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#5a2e1c"/><stop offset=".5" stop-color="#3b1d12"/><stop offset="1" stop-color="#22110a"/></linearGradient>
       <radialGradient id="dLit" cx="75%" cy="20%" r="70%"><stop offset="0" stop-color="#ffcf8a" stop-opacity=".28"/><stop offset="1" stop-color="#ffcf8a" stop-opacity="0"/></radialGradient>
@@ -602,13 +670,15 @@ $$('.frame').forEach(f => {
     <rect x="96" y="380" width="30" height="10" rx="5" fill="#c9a46a"/><rect x="1094" y="380" width="30" height="10" rx="5" fill="#c9a46a"/>`;
   layer(38, front);
 
-  const glow = host.querySelector('.d-glow'), cone = host.querySelector('.d-cone');
+  const light = host.querySelector('.d-light');
   let vis = false;
   new IntersectionObserver(es => { vis = es[0].isIntersecting; }).observe(host);
-  const lowPower = !useGL || reduce;
-  if (!lowPower) (function f() { if (vis) { const k = .84 + Math.random() * .16 + (Math.random() < .04 ? -.3 : 0); glow.style.opacity = k; cone.style.opacity = k; } setTimeout(f, 90 + Math.random() * 140); })();
-  if (!lowPower) (function loop() {
-    if (vis) layers.forEach(l => { const d = +l.dataset.depth * (mobile ? .8 : 1); l.style.transform = `translate3d(${(-INPUT.x * d).toFixed(2)}px,${(-INPUT.y * d * .5).toFixed(2)}px,0)`; });
+  const lowPower = () => !useGL || reduce || LITE.on;
+  // мерцание = только opacity целого слоя (композитор, без перерисовки); на телефоне реже
+  (function f() { if (!lowPower()) { if (vis) light.style.opacity = (.84 + Math.random() * .16 + (Math.random() < .04 ? -.3 : 0)).toFixed(2); } else light.style.opacity = 1; setTimeout(f, mobile ? 260 + Math.random() * 300 : 90 + Math.random() * 140); })();
+  let plx = 9, ply = 9;
+  (function loop() {
+    if (vis && !lowPower() && (Math.abs(INPUT.x - plx) > .002 || Math.abs(INPUT.y - ply) > .002)) plx = INPUT.x, ply = INPUT.y, layers.forEach(l => { const d = +l.dataset.depth * (mobile ? .8 : 1); l.style.transform = `translate3d(${(-INPUT.x * d).toFixed(2)}px,${(-INPUT.y * d * .5).toFixed(2)}px,0)`; });
     requestAnimationFrame(loop);
   })();
   if (gsap && !reduce) gsap.from(layers.slice(1), { y: (i) => 40 + i * 30, opacity: 0, duration: 1.4, ease: 'power3.out', stagger: .12, scrollTrigger: { trigger: host, start: 'top 70%', once: true } });
@@ -658,14 +728,19 @@ saveBtn.addEventListener('click', () => {
   flatCv.addEventListener('pointermove', e => { if (!d) return; ry = clamp(ry + (e.clientX - lx) * .4, -40, 40); lx = e.clientX; flatCv.style.setProperty('--ry', ry + 'deg'); });
 })();
 async function bootCard() {
+  await window.OSB.ready;
   CARD.reveal = 1; paintFlat();
-  if (!useGL) return;
+  if (!useGL || LITE.on) { cardStage.classList.add('flat'); return; }
   try {
     const m = await import('./gl-card.js');
     cardApi = await m.initCard({ host: cardStage, mobile, onWeak: () => { cardApi = null; cardStage.classList.add('flat'); paintFlat(); } });
+    LITE.hooks.push(() => { if (cardApi) { cardApi.kill(); cardApi = null; cardStage.classList.add('flat'); paintFlat(); } });
   } catch (err) { console.warn('[osobnyak] карта без 3D', err); cardStage.classList.add('flat'); }
 }
-new IntersectionObserver((es, o) => { if (es[0].isIntersecting) { o.disconnect(); bootCard().then(() => { if (cardApi) cardApi.print({ ...CARD }); }); } }, { rootMargin: '300px' }).observe(cardStage);
+// 3D-карту готовим заранее, кусками в свободное время (секцией раньше), а «печатаем», когда карта уже на экране
+let cardBoot = null;
+new IntersectionObserver((es, o) => { if (es[0].isIntersecting) { o.disconnect(); cardBoot = bootCard(); } }, { rootMargin: '0px 0px 120% 0px' }).observe(cardStage);
+new IntersectionObserver((es, o) => { if (es[0].isIntersecting && es[0].intersectionRatio > .5) { o.disconnect(); (cardBoot || (cardBoot = bootCard())).then(() => { if (cardApi && !printedOnce) cardApi.print({ ...CARD }); }); } }, { threshold: [0, .5, .8] }).observe(cardStage);
 
 /* ── ЗАПИСЬ: RSVP-карточка, конверт и сургуч */
 (function () {
