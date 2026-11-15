@@ -1,0 +1,402 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Особняк — барбер-клуб</title>
+<meta name="description" content="Демо-концепт, бизнес вымышленный. «Особняк» — барбер-клуб в Нижнем Новгороде: членство, меню услуг, мастера, запись.">
+<meta name="theme-color" content="#0F2A22">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' fill='%230F2A22'/%3E%3Ccircle cx='32' cy='32' r='24' fill='none' stroke='%23B08D57' stroke-width='2'/%3E%3Cellipse cx='32' cy='32' rx='9' ry='13' fill='none' stroke='%23B08D57' stroke-width='4'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Jost:wght@300;400;500&family=Marck+Script&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+<script>
+(function(){var h=document.documentElement;h.classList.add('js');
+var rm=matchMedia('(prefers-reduced-motion: reduce)').matches,seen=false;
+try{seen=localStorage.getItem('osb-entered')==='1';localStorage.setItem('osb-entered','1');}catch(e){}
+if(seen||rm||/[?&]noentry/.test(location.search))h.classList.add('entered');})();
+</script>
+<script src="js/tex.js"></script>
+<script type="importmap">
+{ "imports": {
+  "three": "https://cdn.jsdelivr.net/npm/three@0.169.0/build/three.module.js",
+  "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.169.0/examples/jsm/"
+} }
+</script>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="i-mono" viewBox="0 0 64 64">
+      <circle cx="32" cy="32" r="30" fill="none" stroke="currentColor" stroke-width="1.4"/>
+      <circle cx="32" cy="32" r="26.5" fill="none" stroke="currentColor" stroke-width=".6"/>
+      <ellipse cx="32" cy="32.5" rx="11.5" ry="15" fill="none" stroke="currentColor" stroke-width="4.2"/>
+      <path d="M32 2.8l1.6 2.2-1.6 2.2-1.6-2.2zM32 56.8l1.6 2.2-1.6 2.2-1.6-2.2z" fill="currentColor"/>
+    </symbol>
+    <symbol id="i-arrow" viewBox="0 0 44 24"><path d="M1 12H36M29 5l8 7-8 7" fill="none" stroke="currentColor" stroke-width="1.3"/></symbol>
+    <symbol id="i-orn" viewBox="0 0 220 16"><path d="M0 8H92M128 8H220" stroke="currentColor" stroke-width="1"/><path d="M110 1l7 7-7 7-7-7z" fill="currentColor"/><circle cx="98" cy="8" r="1.6" fill="currentColor"/><circle cx="122" cy="8" r="1.6" fill="currentColor"/></symbol>
+    <symbol id="i-sound-off" viewBox="0 0 24 24"><path d="M4 9h4l5-4v14l-5-4H4z" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/><path d="M16.5 9.5l5 5M21.5 9.5l-5 5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></symbol>
+    <symbol id="i-sound-on" viewBox="0 0 24 24"><path d="M4 9h4l5-4v14l-5-4H4z" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/><path d="M16.5 8.5c1.6 1.8 1.6 5.2 0 7M19 6c3 3 3 9 0 12" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></symbol>
+    <symbol id="i-redo" viewBox="0 0 24 24"><path d="M5 12a7 7 0 1 0 2.2-5.1M5 4v4h4" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-save" viewBox="0 0 24 24"><path d="M12 4v11M7 10l5 5 5-5M5 19h14" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-turn" viewBox="0 0 24 24"><path d="M4 12c0-3 3.6-5 8-5s8 2 8 5-3.6 5-8 5M7 14l-3 3 3 3" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-razor" viewBox="0 0 48 48"><path d="M6 30L30 6l6 6-24 24z" fill="#efe9dc" stroke="#0c0c0b" stroke-width="1.2"/><path d="M30 6l6 6" stroke="#0c0c0b" stroke-width="2.4"/><path d="M12 36l-2 2c-2 2-1 6 2 6s5-2 7-4l10-10" fill="#B08D57" stroke="#0c0c0b" stroke-width="1.2"/></symbol>
+  </defs>
+</svg>
+
+<!-- ВХОД: дубовые двери открываются сами (≤1,5 с), скролл не блокируется -->
+<div class="entry" aria-hidden="true">
+  <div class="entry-lintel"><span>ОСОБНЯК</span></div>
+  <div class="entry-door">
+    <div class="entry-room"><p>Вы приглашены.<br><em>Проходите.</em></p></div>
+    <div class="leaf l"><i class="pn a"></i><i class="pn b"></i><i class="hd"></i></div>
+    <div class="leaf r"><i class="pn a"></i><i class="pn b"></i><i class="hd"></i></div>
+  </div>
+</div>
+
+<canvas class="ink-trail" aria-hidden="true"></canvas>
+<div class="pen" aria-hidden="true">
+  <svg viewBox="0 0 40 40"><defs><linearGradient id="penG" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f0dcae"/><stop offset=".45" stop-color="#b08d57"/><stop offset="1" stop-color="#5e4626"/></linearGradient></defs>
+    <path d="M2 38 L8 24 C10 18 18 10 30 4 C34 2 38 6 36 10 C30 22 22 30 16 32 Z" fill="url(#penG)" stroke="#3a2a14" stroke-width=".8"/>
+    <path d="M2 38 L14 26" stroke="#3a2a14" stroke-width=".9"/><circle cx="16" cy="24" r="1.6" fill="#3a2a14"/>
+  </svg>
+</div>
+
+<header class="hdr">
+  <a class="hdr-mono" href="#top" aria-label="Особняк — наверх"><svg><use href="#i-mono"/></svg><span>Особняк</span></a>
+  <nav class="hdr-nav" aria-label="Разделы">
+    <a href="#membership">Членство</a><a href="#menu">Меню</a><a href="#tryon">Примерочная</a><a href="#masters">Мастера</a><a href="#interior">Интерьер</a>
+  </nav>
+  <span class="hdr-demo">Демо-концепт<br>бизнес вымышленный</span>
+  <a class="hdr-cta" href="#rsvp">Записаться</a>
+  <button class="burger" aria-label="Меню" aria-expanded="false"><i></i><i></i></button>
+</header>
+<div class="mnav" aria-hidden="true">
+  <nav aria-label="Разделы">
+    <a href="#club">Клуб</a><a href="#membership">Членство</a><a href="#menu">Меню</a><a href="#tryon">Примерочная</a><a href="#masters">Мастера</a><a href="#shave">Побрей сам</a><a href="#interior">Интерьер</a><a href="#card">Членская карта</a><a href="#rsvp">Запись</a>
+  </nav>
+  <p>Демо-концепт, бизнес вымышленный</p>
+</div>
+
+<main>
+
+<!-- HERO -->
+<section class="hero" id="top" data-ink="light">
+  <div class="hero-velvet"></div><div class="hero-vig"></div>
+  <div class="hero-gl" data-gl="hero"><canvas aria-hidden="true"></canvas>
+    <img class="hero-static" src="assets/hero-static.webp" alt="" width="900" height="900" loading="lazy" decoding="async">
+  </div>
+  <div class="hero-copy">
+    <p class="label">Вы приглашены</p>
+    <h1 class="hero-title brass-text">ОСОБНЯК</h1>
+    <p class="hero-sub">Барбер-клуб. Нижний Новгород</p>
+    <div class="hero-row">
+      <a class="btn foil" href="#rsvp"><span>Получить приглашение</span><svg><use href="#i-arrow"/></svg></a>
+      <span class="hint"><span class="h-mouse">Ведите курсором — фольга ловит свет</span><span class="h-touch">Наклоните телефон</span></span>
+    </div>
+  </div>
+</section>
+
+<!-- МАНИФЕСТ -->
+<section class="sheet manifest" id="club" data-ink="dark">
+  <aside class="note-margin">
+    <p class="label dark">Из устава клуба</p>
+    <p>Статья первая. Принята советом клуба и действует для каждого, кто переступил порог.</p>
+  </aside>
+  <p class="manifest-text" data-ink-words>Здесь не спешат. Мастер помнит вашу стрижку, кресло ждёт к назначенному часу, а горячее полотенце подают без лишних слов. Мы не модный салон и не парикмахерская у метро. Мы — клуб, где мужчину приводят в порядок так, как это делали всегда: <em>хорошо.</em></p>
+  <p class="manifest-sign">Совет клуба «Особняк»</p>
+</section>
+
+<!-- ЧЛЕНСТВО -->
+<section class="sheet membership" id="membership" data-ink="light">
+  <header class="mem-head">
+    <h2 class="h2">Членство вместо прайса</h2>
+    <p class="lead">Три уровня, как три карты в руке. <span class="h-mouse">Наведите на карту, и она поднимется из веера.</span><span class="h-touch">Нажмите на карту или проведите по вееру в сторону.</span></p>
+  </header>
+  <div class="fan" role="list">
+    <article class="mcard guest" role="listitem" tabindex="0">
+      <div class="mcard-in">
+        <header><svg class="mc-mono"><use href="#i-mono"/></svg><span>Разовый визит</span></header>
+        <h3>Гость</h3>
+        <ul><li>Стрижка или бритьё на выбор</li><li>Горячее полотенце и напиток клуба</li><li>Без членского взноса</li></ul>
+        <p class="mc-price"><b>2 900 ₽</b><span>за визит</span></p>
+        <a class="mc-btn" href="#card" data-tier="guest">Гостевая карта</a>
+      </div><i class="foil-sheen" aria-hidden="true"></i>
+    </article>
+    <article class="mcard member" role="listitem" tabindex="0">
+      <div class="mcard-in">
+        <header><svg class="mc-mono"><use href="#i-mono"/></svg><span>Абонемент</span></header>
+        <h3>Член клуба</h3>
+        <ul><li>Четыре визита в месяц</li><li>Закреплённый мастер</li><li>Бронь кресла за 24 часа</li><li>Личный шкафчик с вашими средствами</li></ul>
+        <p class="mc-price"><b>8 900 ₽</b><span>в месяц</span></p>
+        <a class="mc-btn" href="#card" data-tier="member">Вступить в клуб</a>
+      </div><i class="foil-sheen" aria-hidden="true"></i>
+    </article>
+    <article class="mcard honor" role="listitem" tabindex="0">
+      <div class="mcard-in">
+        <header><svg class="mc-mono"><use href="#i-mono"/></svg><span>По рекомендации</span></header>
+        <h3>Почётный член</h3>
+        <ul><li>Визиты без ограничений</li><li>Именное кресло и чашка</li><li>Королевское бритьё раз в месяц</li><li>Два приглашения для друзей</li></ul>
+        <p class="mc-price"><b>19 900 ₽</b><span>в месяц</span></p>
+        <a class="mc-btn" href="#card" data-tier="honor">Просить рекомендацию</a>
+      </div><i class="foil-sheen" aria-hidden="true"></i>
+    </article>
+  </div>
+  
+</section>
+
+<!-- МЕНЮ -->
+<section class="sheet menu" id="menu" data-ink="dark">
+  <aside class="note-margin side">
+    <p class="label dark">На полях</p>
+    <p>Напиток клуба к любой услуге — от заведения. Чаевые мы не берём: мастер и так получает достойно.</p>
+  </aside>
+  <div class="menu-page">
+    <svg class="menu-mono" aria-hidden="true"><use href="#i-mono"/></svg>
+    <h2 class="menu-title">Меню</h2>
+    <p class="menu-sub">услуги клуба</p>
+    <svg class="orn" aria-hidden="true"><use href="#i-orn"/></svg>
+    <ol class="dishes">
+      <li class="dish" data-name="Стрижка" data-price="2 400 ₽"><p class="dish-desc">Консультация, мытьё, укладка · 60 минут</p></li>
+      <li class="dish" data-name="Стрижка и борода" data-price="3 600 ₽"><p class="dish-desc">Форма бороды, горячее полотенце · 90 минут</p></li>
+      <li class="dish" data-name="Королевское бритьё" data-price="2 500 ₽"><p class="dish-desc">Горячее полотенце, опасная бритва, бальзам · 45 минут</p></li>
+      <li class="dish" data-name="Камуфляж седины" data-price="1 800 ₽"><p class="dish-desc">Мягкое тонирование, естественный оттенок · 30 минут</p></li>
+      <li class="dish" data-name="Детская стрижка" data-price="1 600 ₽"><p class="dish-desc">До двенадцати лет, с терпением · 40 минут</p></li>
+    </ol>
+    <svg class="orn" aria-hidden="true"><use href="#i-orn"/></svg>
+    <p class="menu-foot">Цены вымышленные · демо</p>
+  </div>
+</section>
+
+<!-- ПРИМЕРОЧНАЯ -->
+<section class="sheet tryon" id="tryon" data-ink="light">
+  <div class="tryon-plate">
+    <div class="oval-frame"><div class="oval"><svg class="bust" id="tryBust" role="img" aria-label="Силуэт в профиль с выбранной стрижкой"></svg></div></div>
+  </div>
+  <div class="tryon-side">
+    <p class="label">Примерочная</p>
+    <h2 class="h2">Примерьте стрижку до&nbsp;кресла</h2>
+    <p class="lead">Двигайте ползунки, и силуэт подстрижётся вместе с ними.</p>
+    <div class="rngs">
+      <label class="rng"><span>Длина сверху <output id="o-top">средняя</output></span><input type="range" id="r-top" min="0" max="100" value="55"></label>
+      <label class="rng"><span>Фейд по бокам <output id="o-fade">средний</output></span><input type="range" id="r-fade" min="0" max="100" value="45"></label>
+      <label class="rng"><span>Борода <output id="o-beard">нет</output></span><input type="range" id="r-beard" min="0" max="100" value="0"></label>
+    </div>
+    <div class="verdict" aria-live="polite">
+      <p class="v-name"><span id="v-name">Канадка с фейдом</span> <em id="v-extra"></em></p>
+      <dl>
+        <div><dt>Мастер</dt><dd id="v-master">Семён Ярцев</dd></div>
+        <div><dt>Время</dt><dd id="v-time">60 минут</dd></div>
+        <div><dt>Цена</dt><dd id="v-price">2 400 ₽</dd></div>
+      </dl>
+      <a class="btn foil" href="#rsvp" id="v-book"><span>Записаться на эту</span><svg><use href="#i-arrow"/></svg></a>
+    </div>
+  </div>
+</section>
+
+<!-- МАСТЕРА -->
+<section class="sheet masters" id="masters" data-ink="dark">
+  <div class="masters-top">
+    <h2 class="d-xl">Мастера</h2>
+    <p class="lead">Четыре силуэта из клубной галереи. Нажмите на портрет: на обороте специализация, стаж и любимый виски.</p>
+  </div>
+  <div class="gallery">
+    <article class="frame f1" data-master="Аркадий Белозёров" data-bust='{"top":0.82,"fade":0.2,"beard":0,"mus":1,"tie":"bow","seed":4}'>
+      <button class="frame-flip" aria-label="Перевернуть портрет: Аркадий Белозёров"></button>
+      <div class="frame-inner">
+        <div class="frame-front"><div class="mat"><div class="oval"><svg class="bust"></svg></div></div></div>
+        <div class="frame-back">
+          <dl><div><dt>Специализация</dt><dd>Классика, зачёсы, помпадур</dd></div><div><dt>Стаж</dt><dd>14 лет</dd></div><div><dt>Любимый виски</dt><dd>Шерри-бочка, 18 лет, без льда</dd></div></dl>
+          <a class="btn small" href="#rsvp" data-book-master="Аркадий Белозёров"><span>Записаться к мастеру</span></a>
+        </div>
+      </div>
+      <p class="cap"><b>Аркадий Белозёров</b><span>хранитель классики</span></p>
+    </article>
+    <article class="frame f2" data-master="Тимур Галеев" data-bust='{"top":0.22,"fade":0.95,"beard":0.42,"tie":"tie","flip":true,"seed":9}'>
+      <button class="frame-flip" aria-label="Перевернуть портрет: Тимур Галеев"></button>
+      <div class="frame-inner">
+        <div class="frame-front"><div class="mat"><div class="oval"><svg class="bust"></svg></div></div></div>
+        <div class="frame-back">
+          <dl><div><dt>Специализация</dt><dd>Фейды, кропы, скин-фейд</dd></div><div><dt>Стаж</dt><dd>9 лет</dd></div><div><dt>Любимый виски</dt><dd>Кукурузный, из новой бочки</dd></div></dl>
+          <a class="btn small" href="#rsvp" data-book-master="Тимур Галеев"><span>Записаться к мастеру</span></a>
+        </div>
+      </div>
+      <p class="cap"><b>Тимур Галеев</b><span>мастер фейда</span></p>
+    </article>
+    <article class="frame f3" data-master="Лев Корнилов" data-bust='{"top":0.45,"fade":0.35,"beard":0.95,"mus":2,"tie":"bow","seed":15}'>
+      <button class="frame-flip" aria-label="Перевернуть портрет: Лев Корнилов"></button>
+      <div class="frame-inner">
+        <div class="frame-front"><div class="mat"><div class="oval"><svg class="bust"></svg></div></div></div>
+        <div class="frame-back">
+          <dl><div><dt>Специализация</dt><dd>Королевское бритьё, бороды</dd></div><div><dt>Стаж</dt><dd>17 лет</dd></div><div><dt>Любимый виски</dt><dd>Островной, с дымком</dd></div></dl>
+          <a class="btn small" href="#rsvp" data-book-master="Лев Корнилов"><span>Записаться к мастеру</span></a>
+        </div>
+      </div>
+      <p class="cap"><b>Лев Корнилов</b><span>борода и бритва</span></p>
+    </article>
+    <article class="frame f4" data-master="Семён Ярцев" data-bust='{"top":0.55,"fade":0.55,"beard":0.16,"glasses":true,"tie":"tie","flip":true,"seed":22}'>
+      <button class="frame-flip" aria-label="Перевернуть портрет: Семён Ярцев"></button>
+      <div class="frame-inner">
+        <div class="frame-front"><div class="mat"><div class="oval"><svg class="bust"></svg></div></div></div>
+        <div class="frame-back">
+          <dl><div><dt>Специализация</dt><dd>Камуфляж седины, детские стрижки</dd></div><div><dt>Стаж</dt><dd>7 лет</dd></div><div><dt>Любимый виски</dt><dd>Не пьёт. Чай с чабрецом</dd></div></dl>
+          <a class="btn small" href="#rsvp" data-book-master="Семён Ярцев"><span>Записаться к мастеру</span></a>
+        </div>
+      </div>
+      <p class="cap"><b>Семён Ярцев</b><span>седина и дети</span></p>
+    </article>
+  </div>
+</section>
+
+<!-- ПОБРЕЙ САМ -->
+<section class="sheet shave" id="shave" data-ink="light">
+  <div class="shave-text">
+    <p class="label">Попробуйте сами</p>
+    <h2 class="h2 loud">Побрей<br>сам</h2>
+    <p class="lead">Проведите пальцем или мышью по пене, как бритвой. Лезвие игрушечное, порезаться нельзя.</p>
+    <div class="shave-meter"><span>Пены осталось</span><b id="foamPct">100%</b><i><em id="foamBar"></em></i></div>
+    <div class="shave-tools">
+      <button class="chip" id="shaveSound" aria-pressed="false"><svg><use href="#i-sound-off"/></svg><span>Звук лезвия</span></button>
+      <button class="chip" id="shaveReset"><svg><use href="#i-redo"/></svg><span>Новая пена</span></button>
+    </div>
+  </div>
+  <div class="shave-stage">
+    <div class="oval-frame"><div class="oval shave-face">
+      <svg class="bust" id="shaveBust" aria-hidden="true"></svg>
+      <canvas id="foam" aria-label="Пена для бритья — проведите, чтобы сбрить"></canvas>
+      <div class="razor" aria-hidden="true"><svg><use href="#i-razor"/></svg></div>
+    </div></div>
+    <div class="shave-done" id="shaveDone" hidden>
+      <p class="sd-title">Королевское бритьё —&nbsp;2&nbsp;500&nbsp;₽</p>
+      <p class="sd-sub">Горячее полотенце, опасная бритва и сорок пять минут тишины. У мастера это получается лучше.</p>
+      <a class="btn foil" href="#rsvp" data-book-service="Королевское бритьё"><span>Записаться</span><svg><use href="#i-arrow"/></svg></a>
+    </div>
+  </div>
+</section>
+
+<!-- ИНТЕРЬЕР -->
+<section class="sheet interior" id="interior" data-ink="light">
+  <div class="dio" aria-hidden="true"></div>
+  <div class="int-text">
+    <p class="label">Интерьер</p>
+    <h2 class="h2">Комната, где не&nbsp;спешат</h2>
+    <p class="lead">Ведите курсором или наклоните телефон: слои комнаты расходятся в глубину.</p>
+  </div>
+  <p class="int-cap">Дубовые панели <i></i> Кресло честерфилд <i></i> Латунная лампа <i></i> Графин для гостей</p>
+</section>
+
+<!-- ЧЛЕНСКАЯ КАРТА -->
+<section class="sheet cardsec" id="card" data-ink="light">
+  <div class="card-copy">
+    <p class="label">Членская карта</p>
+    <h2 class="h2">Ваше имя, оттиснутое золотом</h2>
+    <form class="card-form" id="cardForm" autocomplete="off">
+      <label class="field"><span>Ваше имя</span><input id="cardName" name="name" maxlength="22" placeholder="Например, Андрей Волков" required></label>
+      <fieldset class="tiers"><legend>Уровень</legend>
+        <label><input type="radio" name="tier" value="guest"><span>Гость</span></label>
+        <label><input type="radio" name="tier" value="member" checked><span>Член клуба</span></label>
+        <label><input type="radio" name="tier" value="honor"><span>Почётный</span></label>
+      </fieldset>
+      <div class="card-actions">
+        <button class="btn foil" type="submit"><span>Напечатать карту</span><svg><use href="#i-arrow"/></svg></button>
+        <button class="chip" type="button" id="cardSave" disabled><svg><use href="#i-save"/></svg><span>Сохранить PNG</span></button>
+      </div>
+      <p class="card-note">Карта демонстрационная, имя никуда не отправляется.</p>
+    </form>
+  </div>
+  <div class="card-stage" data-gl="card">
+    <canvas aria-label="Членская карта клуба — крутите пальцем или мышью"></canvas>
+    <div class="card-flat" aria-hidden="true"><canvas></canvas></div>
+    <p class="card-hint"><svg><use href="#i-turn"/></svg>Крутите карту</p>
+  </div>
+</section>
+
+<!-- ЗАПИСЬ -->
+<section class="sheet rsvp" id="rsvp" data-ink="dark">
+  <div class="rsvp-side">
+    <p class="label dark">Запись</p>
+    <h2 class="h2">Ответ на приглашение</h2>
+    <p class="lead">Мастер, услуга, день и час. После отправки карточка ляжет в конверт под сургуч.</p>
+    <p class="rc-summary" id="rcSummary">Выберите мастера, услугу, день и час.</p>
+  </div>
+  <div class="rsvp-stage">
+    <form class="rsvp-card" id="rsvpForm" novalidate>
+      <p class="rc-top"><span>R.S.V.P.</span><svg><use href="#i-mono"/></svg><span>Особняк</span></p>
+      <fieldset class="rc-step"><legend>Мастер</legend><div class="opts" id="fMaster"></div></fieldset>
+      <fieldset class="rc-step"><legend>Услуга</legend><div class="opts" id="fService"></div></fieldset>
+      <fieldset class="rc-step"><legend>День</legend><div class="opts days" id="fDay"></div></fieldset>
+      <fieldset class="rc-step"><legend>Час</legend><div class="opts times" id="fTime"></div></fieldset>
+      <div class="rc-step rc-name">
+        <label for="fName" class="lg">Ваше имя</label>
+        <div class="ink-field"><input id="fName" name="name" maxlength="24" autocomplete="given-name"><div class="ink-out" aria-hidden="true"></div></div>
+        <label for="fPhone" class="lg">Телефон</label>
+        <div class="ink-field"><input id="fPhone" name="phone" inputmode="tel" maxlength="18" placeholder="+7"></div>
+      </div>
+      <p class="rc-err" id="rcErr" role="alert"></p>
+      <button class="btn" type="submit"><span>Отправить ответ</span><svg><use href="#i-arrow"/></svg></button>
+    </form>
+    <div class="envelope" aria-hidden="true">
+      <div class="env-back"></div>
+      <div class="env-front"><svg viewBox="0 0 300 200" preserveAspectRatio="none"><path d="M0 0L150 112 0 200Z" fill="#e6dbc2"/><path d="M300 0L150 112 300 200Z" fill="#e1d5bb"/><path d="M0 200L150 96 300 200Z" fill="#ece2cb"/><path d="M0 200L150 96 300 200" fill="none" stroke="rgba(0,0,0,.14)" stroke-width=".7"/></svg></div>
+      <div class="env-flap"><i class="face"></i><i class="inside"></i></div>
+      <div class="wax">
+        <svg viewBox="0 0 160 160"><defs><radialGradient id="waxG" cx="38%" cy="32%" r="75%"><stop offset="0" stop-color="#2f6b55"/><stop offset=".45" stop-color="#14402f"/><stop offset="1" stop-color="#061a12"/></radialGradient><path id="waxRing" d="M80 80 m-44 0 a44 44 0 1 1 88 0 a44 44 0 1 1 -88 0"/></defs>
+          <path class="wax-blob" fill="url(#waxG)" d=""/>
+          <circle cx="80" cy="80" r="56" fill="#123a2c" stroke="#3c7a62" stroke-width="1.2"/>
+          <circle cx="80" cy="80" r="35" fill="none" stroke="#04140e" stroke-width="1"/>
+          <text font-family="Jost" font-size="10.5" letter-spacing="2.2" fill="#c9a76e"><textPath href="#waxRing" startOffset="2%">ЗАЯВКА НЕ ОТПРАВЛЕНА · ЗАЯВКА НЕ ОТПРАВЛЕНА ·</textPath></text>
+          <text x="80" y="88" text-anchor="middle" font-family="Cormorant Garamond" font-weight="600" font-size="25" letter-spacing="2" fill="#c9a76e">ДЕМО</text>
+          <ellipse cx="58" cy="50" rx="18" ry="7" fill="#fff" opacity=".08" transform="rotate(-30 58 50)"/>
+        </svg>
+      </div>
+    </div>
+    <div class="rsvp-done" id="rsvpDone" hidden>
+      <p class="rd-title">Это демо, заявка не отправлена.</p>
+      <p class="rd-sub" id="rdSub"></p>
+      <button class="chip dark" id="rsvpAgain"><svg><use href="#i-redo"/></svg><span>Заполнить заново</span></button>
+    </div>
+  </div>
+</section>
+
+<!-- ОТЗЫВЫ -->
+<section class="sheet reviews" id="reviews" data-ink="light">
+  <div class="rev-head">
+    <h2 class="h2">Записки, оставленные гостями</h2>
+    <p class="lead">Их прикалывают к доске у гардероба. Тексты вымышленные, это примеры.</p>
+  </div>
+  <div class="board">
+    <figure class="note n1"><i class="pin"></i><blockquote>Впервые за десять лет мастер спросил, как хочу я, а не как модно. Вернусь в пятницу.</blockquote><figcaption>Андрей, член клуба</figcaption><span class="ex">пример</span></figure>
+    <figure class="note n2"><i class="pin"></i><blockquote>Королевское бритьё — это не услуга, а сорок минут тишины. Полотенце пахнет кедром.</blockquote><figcaption>Павел</figcaption><span class="ex">пример</span></figure>
+    <figure class="note n3"><i class="pin"></i><blockquote>Седину закрасили так, что жена решила, будто я наконец выспался.</blockquote><figcaption>Олег, 52 года</figcaption><span class="ex">пример</span></figure>
+    <figure class="note n4"><i class="pin"></i><blockquote>Сына стригли так бережно, что он сам попросился сюда снова.</blockquote><figcaption>Ирина, мама Миши</figcaption><span class="ex">пример</span></figure>
+  </div>
+</section>
+
+</main>
+
+<!-- ПОДВАЛ: оборот приглашения -->
+<footer class="sheet foot" data-ink="dark">
+  <div class="foot-emboss" aria-hidden="true">О</div>
+  <p class="label dark">Оборот приглашения</p>
+  <p class="foot-big">Нижний Новгород,<br>Особняков переулок, 1</p>
+  <p class="foot-small">Адрес вымышленный</p>
+  <div class="foot-row">
+    <dl class="hours"><div><dt>Пн — Сб</dt><dd>10:00 — 22:00</dd></div><div><dt>Вс</dt><dd>11:00 — 20:00</dd></div></dl>
+    <p class="foot-tel">+7 (831) 000-00-00</p>
+  </div>
+  <div class="foot-bottom">
+    <p class="foot-demo">Демо-концепт, бизнес вымышленный</p>
+    <a href="#top" class="foot-up">Наверх</a>
+  </div>
+</footer>
+
+<a class="sticky-cta" href="#rsvp"><span>Записаться</span><svg><use href="#i-arrow"/></svg></a>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/lenis@1.1.13/dist/lenis.min.js"></script>
+<script type="module" src="js/main.js"></script>
+</body>
+</html>
