@@ -1,0 +1,72 @@
+.house-head { display: grid; gap: 20px; margin-bottom: clamp(28px, 4vw, 56px); }
+@media (min-width: 1000px) { .house-head { grid-template-columns: 7fr 5fr; align-items: end; } }
+
+.house-types {
+  display: grid; grid-auto-flow: column; grid-auto-columns: minmax(138px, 1fr); gap: 10px;
+  overflow-x: auto; scroll-snap-type: x mandatory; margin: 0 calc(var(--gutter) * -1); padding: 4px var(--gutter) 12px;
+  scrollbar-width: none;
+}
+.house-types::-webkit-scrollbar { display: none; }
+.house-card {
+  scroll-snap-align: start; display: grid; gap: 2px; justify-items: start; text-align: left;
+  padding: 14px 14px 16px; border: 1px solid var(--hairline); border-radius: var(--radius); background: transparent;
+  transition: border-color var(--t-fast), background-color var(--t), transform var(--t-fast);
+}
+.house-card:active { transform: scale(0.98); }
+@media (hover: hover) { .house-card:hover { border-color: var(--graphite); } }
+.house-card.on { border-color: var(--graphite); background: var(--paper-2); box-shadow: inset 0 -3px 0 var(--clay); }
+.house-name { font-weight: 500; margin-top: 10px; }
+.house-years { font-size: var(--fs-micro); color: var(--graphite-mute); }
+
+.facade { width: 100%; height: auto; max-height: 112px; }
+.facade .fg { stroke: var(--graphite); stroke-width: 1; }
+.facade .fbody { fill: var(--paper-2); stroke: var(--graphite); stroke-width: 0.9; }
+.facade .fbase { fill: var(--stone); stroke: var(--graphite); stroke-width: 0.6; }
+.facade .froof { stroke: var(--graphite); stroke-width: 1.6; }
+.facade .fbrick { stroke: var(--hairline-soft); stroke-width: 0.5; }
+.facade .fw { fill: var(--stone); stroke: var(--graphite-soft); stroke-width: 0.5; transition: fill var(--t) var(--ease); }
+.facade .fw-on { fill: var(--clay); stroke: var(--clay-deep); }
+.facade .fb { fill: none; stroke: var(--graphite-soft); stroke-width: 0.5; }
+.facade .fb-glass { fill: rgba(220, 223, 218, 0.6); }
+.facade .fs { stroke: var(--graphite-soft); stroke-width: 0.8; }
+.facade .fdoor { fill: var(--graphite); }
+.house-card:not(.on) .facade { opacity: 0.8; }
+
+.house-body { display: grid; gap: 28px; margin-top: 28px; }
+.house-side { display: grid; gap: 14px; align-content: start; }
+.field-k { font-size: var(--fs-small); color: var(--graphite-soft); }
+.house-seg button { font-size: 0.875rem; padding: 0 6px; }
+.house-note { display: flex; gap: 8px; color: var(--graphite-soft); line-height: 1.45; }
+.house-note .ico { flex: none; margin-top: 2px; color: var(--clay); }
+.house-rooms { border-top: 1px solid var(--hairline); }
+.hr-row {
+  width: 100%; display: flex; justify-content: space-between; align-items: center; gap: 12px; min-height: 44px; padding: 0 4px;
+  border: 0; border-bottom: 1px solid var(--hairline-soft); background: transparent; text-align: left; font-size: 0.9375rem;
+  transition: background-color var(--t-fast), color var(--t-fast);
+}
+@media (hover: hover) { .hr-row:hover { background: var(--stone); } }
+.hr-row.on { background: var(--clay-tint); color: var(--clay-deep); }
+.hr-row .mono { font-size: 0.875rem; }
+.house-total { display: grid; gap: 2px; padding: 8px 0 6px; }
+.house-total-v { font-family: var(--font-display); font-size: 2.6rem; line-height: 1.05; letter-spacing: -0.02em; font-weight: 300; }
+.house-plan { margin: 0; display: grid; gap: 12px; }
+.house-paper {
+  position: relative; padding: clamp(16px, 3vw, 40px); padding-bottom: 64px; border-radius: var(--radius-l);
+  background: var(--paper-2); border: 1px solid var(--hairline); min-height: 300px; display: grid; place-items: center;
+  background-image: linear-gradient(var(--hairline-soft) 1px, transparent 1px), linear-gradient(90deg, var(--hairline-soft) 1px, transparent 1px);
+  background-size: 24px 24px; background-position: -1px -1px;
+}
+.house-paper .plan { max-height: 560px; }
+.house-stamp {
+  position: absolute; right: 12px; bottom: 12px; display: grid; grid-template-columns: auto auto; gap: 0;
+  font-size: 11.5px; letter-spacing: 0.05em; text-transform: uppercase; border: 1px solid var(--graphite); background: var(--paper-2);
+}
+.house-stamp span { padding: 4px 8px; border-right: 1px solid var(--graphite); border-bottom: 1px solid var(--graphite); }
+.house-stamp span:nth-child(2n) { border-right: 0; }
+.house-stamp span:nth-child(n + 3) { border-bottom: 0; }
+.house-stamp span:first-child { font-family: var(--font-display); font-size: 13px; text-transform: none; letter-spacing: 0; }
+.house-sel { color: var(--clay-deep); font-weight: 500; }
+@media (min-width: 1000px) {
+  .house-types { grid-auto-flow: unset; grid-template-columns: repeat(5, 1fr); overflow: visible; margin: 0; padding: 4px 0 0; }
+  .house-body { grid-template-columns: 4fr 8fr; gap: clamp(32px, 4vw, 72px); margin-top: 40px; }
+}

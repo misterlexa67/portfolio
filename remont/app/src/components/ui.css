@@ -1,0 +1,58 @@
+/* Модальное окно: на телефоне — шторка снизу */
+.modal-back {
+  position: fixed; inset: 0; z-index: 100; background: rgba(35, 33, 30, 0.42);
+  display: flex; align-items: flex-end; justify-content: center;
+  animation: fade var(--t) var(--ease) both;
+}
+.modal {
+  width: 100%; max-height: 92dvh; display: flex; flex-direction: column;
+  background: var(--paper); border-radius: var(--radius-l) var(--radius-l) 0 0; box-shadow: var(--shadow-3);
+  animation: sheet-up var(--t-slow) var(--ease-out) both;
+  padding-bottom: env(safe-area-inset-bottom);
+}
+.modal-head { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 18px 20px 10px; border-bottom: 1px solid var(--hairline-soft); }
+.modal-title { font-family: var(--font-display); font-weight: 400; font-size: 1.6rem; line-height: 1.1; letter-spacing: -0.01em; }
+.modal-close { flex: none; width: 44px; height: 44px; border-radius: 50%; border: 1px solid var(--hairline); background: transparent; display: grid; place-items: center; }
+.modal-body { padding: 18px 20px 24px; overflow-y: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; }
+@media (min-width: 760px) {
+  .modal-back { align-items: center; padding: 32px; }
+  .modal { max-width: 560px; border-radius: var(--radius-l); animation-name: pop-in; }
+  .modal-wide { max-width: 860px; }
+  .modal-head { padding: 24px 28px 14px; }
+  .modal-body { padding: 20px 28px 28px; }
+}
+@keyframes fade { from { opacity: 0; } }
+@keyframes sheet-up { from { transform: translate3d(0, 40px, 0); opacity: 0; } }
+@keyframes pop-in { from { transform: translate3d(0, 16px, 0) scale(0.98); opacity: 0; } }
+
+/* Подсказка */
+.pop { position: relative; display: inline-flex; }
+.pop-btn {
+  display: inline-flex; align-items: center; gap: 6px; min-height: 32px; padding: 0 2px; border: 0; background: transparent;
+  color: var(--graphite-soft); font-size: var(--fs-small); text-decoration: underline dotted; text-underline-offset: 4px;
+}
+.pop-btn::before { content: ''; position: absolute; inset: -6px; } /* увеличенная зона касания */
+@media (hover: hover) { .pop-btn:hover { color: var(--clay); } }
+.pop-body {
+  position: absolute; z-index: 30; top: calc(100% + 6px); width: min(300px, 78vw);
+  padding: 14px 16px; border-radius: var(--radius); background: var(--graphite); color: var(--paper);
+  font-size: var(--fs-small); line-height: 1.45; box-shadow: var(--shadow-3); text-align: left;
+  animation: pop-in var(--t) var(--ease-out) both;
+}
+.pop-left { left: 0; }
+.pop-right { right: 0; }
+.pop-body b { display: block; font-weight: 500; margin-bottom: 6px; color: #fff; }
+.pop-body ul { display: grid; gap: 5px; }
+.pop-body li { position: relative; padding-left: 14px; color: #E6E0D6; }
+.pop-body li::before { content: ''; position: absolute; left: 0; top: 0.62em; width: 6px; height: 1px; background: var(--clay-tint); }
+
+/* Тосты */
+.toasts { position: fixed; z-index: 120; left: 50%; bottom: calc(88px + env(safe-area-inset-bottom)); transform: translateX(-50%); display: grid; gap: 8px; width: min(440px, calc(100vw - 32px)); pointer-events: none; }
+@media (min-width: 900px) { .toasts { bottom: 32px; } }
+.toast {
+  display: flex; align-items: center; gap: 10px; padding: 14px 16px; border-radius: var(--radius);
+  background: var(--graphite); color: var(--paper); font-size: var(--fs-small); box-shadow: var(--shadow-3);
+  animation: sheet-up var(--t) var(--ease-out) both; pointer-events: auto;
+}
+.toast-ok .ico { color: #B9D3A8; }
+.toast-warn { background: var(--clay-deep); }

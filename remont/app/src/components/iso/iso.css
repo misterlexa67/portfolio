@@ -1,0 +1,34 @@
+.iso { width: 100%; height: auto; overflow: visible; }
+.iso-el {
+  transition:
+    opacity 460ms var(--ease) var(--d, 0ms),
+    transform 560ms var(--ease-out) var(--d, 0ms);
+  will-change: auto;
+}
+.iso-el.off { opacity: 0; transform: translate3d(0, -22px, 0); pointer-events: none; }
+.L-base.off { transform: translate3d(0, 16px, 0); }
+.iso-el.lift { opacity: 0.1; transform: translate3d(0, -34px, 0); }
+.L-furniture.lift { transform: translate3d(0, -46px, 0); opacity: 0.06; }
+
+/* фокус на слое из легенды: остальное приглушаем */
+.iso[data-focus] .iso-el:not(.off) { opacity: 0.35; }
+.iso[data-focus='screed'] .L-screed:not(.off),
+.iso[data-focus='warmFloor'] .L-warmFloor:not(.off),
+.iso[data-focus='electrics'] .L-electrics:not(.off),
+.iso[data-focus='partitions'] .L-partitions:not(.off),
+.iso[data-focus='walls'] .L-walls:not(.off),
+.iso[data-focus='floor'] .L-floor:not(.off),
+.iso[data-focus='light'] .L-light:not(.off),
+.iso[data-focus='furniture'] .L-furniture:not(.off),
+.iso[data-focus='conditioner'] .L-conditioner:not(.off),
+.iso[data-focus] .L-base { opacity: 1; }
+.iso[data-focus] .iso-el.lift { opacity: 0.08; }
+
+@media (prefers-reduced-motion: reduce) {
+  .iso-el { transition: opacity 1ms; }
+  .iso-el.off, .iso-el.lift, .L-furniture.lift { transform: none; }
+}
+
+/* Три бюджета: варианты комнаты лежат друг на друге, переключение — кроссфейд */
+.room-v { opacity: 0; transition: opacity 520ms var(--ease); }
+.room-v.on { opacity: 1; }

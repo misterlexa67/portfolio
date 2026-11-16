@@ -1,0 +1,17 @@
+.ba { display: grid; gap: 6px; }
+.ba-stage { position: relative; border-radius: var(--radius); background: var(--paper); border: 1px solid var(--hairline); overflow: hidden; aspect-ratio: 16 / 10; }
+.ba-layer { position: absolute; inset: 0; display: grid; place-items: center; padding: 12px; }
+.ba-layer .iso { max-height: 100%; }
+.ba-before { background: #EDE9E2; }
+.ba-after { background: var(--paper-2); }
+.ba-line { position: absolute; top: 0; bottom: 0; width: 2px; margin-left: -1px; background: var(--graphite); pointer-events: none; }
+.ba-knob { position: absolute; top: 50%; left: 50%; width: 34px; height: 34px; margin: -17px 0 0 -17px; border-radius: 50%; background: var(--paper-2); border: 2px solid var(--graphite); box-shadow: var(--shadow-1); }
+.ba-knob::before, .ba-knob::after { content: ''; position: absolute; top: 50%; width: 6px; height: 6px; border-top: 1.5px solid var(--graphite); border-left: 1.5px solid var(--graphite); }
+.ba-knob::before { left: 7px; transform: translateY(-50%) rotate(-45deg); }
+.ba-knob::after { right: 7px; transform: translateY(-50%) rotate(135deg); }
+.ba-tag { position: absolute; top: 10px; font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.08em; padding: 3px 8px; border-radius: 999px; background: var(--paper-2); }
+.ba-tag-l { left: 10px; }
+.ba-tag-r { right: 10px; background: var(--graphite); color: var(--paper-2); }
+.ba-range { position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; opacity: 0; cursor: ew-resize; z-index: 2; touch-action: pan-y; -webkit-appearance: none; appearance: none; }
+.ba-range::-webkit-slider-thumb { -webkit-appearance: none; width: 48px; height: 400px; }
+.ba-stage:focus-within { outline: 2px solid var(--clay); outline-offset: 2px; }

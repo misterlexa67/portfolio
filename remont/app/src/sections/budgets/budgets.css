@@ -1,0 +1,41 @@
+.budgets { background: var(--stone); border-top: 0 !important; }
+.budgets .bud-ticks button.on { color: var(--graphite); }
+.bud-head { display: grid; gap: 20px; margin-bottom: clamp(24px, 4vw, 48px); }
+@media (min-width: 1000px) { .bud-head { grid-template-columns: 7fr 5fr; align-items: end; } }
+.bud-grid { display: grid; gap: 28px; }
+.bud-room { padding: 12px 0; }
+.bud-room .iso { max-height: 520px; margin: 0 auto; }
+.bud-slider { max-width: 640px; margin: 0 auto 4px; }
+.bud-ticks { display: grid; grid-template-columns: repeat(3, 1fr); margin-top: 4px; }
+.bud-ticks button {
+  display: grid; gap: 2px; min-height: 52px; padding: 6px 4px; border: 0; background: transparent; color: var(--graphite-mute);
+  font-size: 0.9375rem; transition: color var(--t-fast);
+}
+.bud-ticks button:nth-child(1) { justify-items: start; text-align: left; }
+.bud-ticks button:nth-child(2) { justify-items: center; }
+.bud-ticks button:nth-child(3) { justify-items: end; text-align: right; }
+.bud-ticks button .mono { font-size: 11px; }
+.bud-ticks button.on { color: var(--graphite); font-weight: 500; }
+.bud-side { display: grid; gap: 12px; align-content: start; }
+.bud-k { font-size: var(--fs-micro); letter-spacing: 0.08em; text-transform: uppercase; color: var(--clay); }
+.bud-pm { font-size: clamp(3rem, 7vw, 5rem); line-height: 1; letter-spacing: -0.03em; display: flex; align-items: baseline; gap: 10px; white-space: nowrap; }
+.bud-pm small { font-family: var(--font-ui); font-size: 1rem; color: var(--graphite-soft); letter-spacing: 0; }
+.bud-total { color: var(--graphite); font-weight: 500; }
+.bud-inc { border-top: 1px solid var(--graphite); margin: 6px 0 8px; }
+.bud-inc li { display: grid; grid-template-columns: 76px 1fr; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--hairline); font-size: var(--fs-small); }
+.bud-inc .mono { font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--graphite-soft); padding-top: 2px; }
+
+.bud-table-wrap { margin-top: clamp(40px, 6vw, 72px); overflow-x: auto; margin-left: calc(var(--gutter) * -1); margin-right: calc(var(--gutter) * -1); padding: 0 var(--gutter); }
+.bud-table { width: 100%; min-width: 640px; border-collapse: collapse; font-size: 0.9375rem; line-height: 1.45; }
+.bud-table th, .bud-table td { text-align: left; padding: 14px 16px 14px 0; border-bottom: 1px solid var(--hairline); vertical-align: top; font-weight: 400; transition: background-color var(--t), color var(--t); }
+.bud-table thead th { font-family: var(--font-display); font-size: 1.4rem; padding-bottom: 12px; border-bottom: 1px solid var(--graphite); color: var(--graphite-mute); }
+.bud-table thead th.on { color: var(--graphite); }
+.bud-table tbody th { font-family: var(--font-mono); font-size: 12px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--graphite-soft); width: 120px; }
+.bud-table td { color: var(--graphite-soft); width: calc((100% - 120px) / 3); }
+.bud-table td.on { color: var(--graphite); background: linear-gradient(90deg, transparent 0, var(--clay-tint) 0) no-repeat; background-size: 100% 100%; padding-left: 12px; }
+.bud-table thead th.on { box-shadow: inset 0 -3px 0 var(--clay); padding-left: 12px; }
+.bud-price td { font-weight: 500; color: var(--graphite); font-size: 1rem; }
+
+@media (min-width: 1000px) {
+  .bud-grid { grid-template-columns: 7fr 4fr; gap: clamp(32px, 5vw, 80px); align-items: center; }
+}

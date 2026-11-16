@@ -1,0 +1,78 @@
+@import '../tokens/tokens.css';
+
+*, *::before, *::after { box-sizing: border-box; }
+html { overflow-x: clip; -webkit-text-size-adjust: 100%; text-size-adjust: 100%; scroll-padding-top: 72px; }
+@media (prefers-reduced-motion: no-preference) { html { scroll-behavior: smooth; } }
+body {
+  margin: 0;
+  background-color: var(--paper);
+  /* бумажное зерно — фон body, без fixed-слоёв, чтобы не дёргался скролл на телефонах */
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.14 0 0 0 0 0.13 0 0 0 0 0.12 0 0 0 .07 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  color: var(--graphite);
+  font-family: var(--font-ui);
+  font-size: var(--fs-body);
+  line-height: 1.55;
+  font-feature-settings: 'kern' 1;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: clip;
+}
+img, svg { display: block; max-width: 100%; }
+button, input, select, textarea { font: inherit; color: inherit; }
+button { cursor: pointer; }
+a { color: inherit; }
+h1, h2, h3, h4, p { margin: 0; }
+ul, ol { margin: 0; padding: 0; list-style: none; }
+::selection { background: var(--clay-tint); color: var(--graphite); }
+:focus-visible { outline: 2px solid var(--clay); outline-offset: 3px; border-radius: 4px; }
+
+.num, .tnum { font-variant-numeric: tabular-nums lining-nums; font-feature-settings: 'tnum' 1, 'lnum' 1; }
+.mono { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+.vh { position: absolute !important; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+.display {
+  font-family: var(--font-display);
+  font-weight: 300;
+  letter-spacing: -0.025em;
+  line-height: 0.98;
+  font-variation-settings: 'wdth' 100;
+}
+.display em, .accent-em { font-style: italic; font-weight: 300; color: var(--clay); }
+
+.wrap { width: 100%; max-width: var(--max); margin: 0 auto; padding: 0 var(--gutter); }
+.grid12 { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: clamp(12px, 2vw, 28px); }
+
+/* Лист чертежа: подпись секции */
+.sheet { position: relative; padding: var(--section-y) 0; overflow-x: clip; }
+.sheet + .sheet { border-top: 1px solid var(--hairline); }
+.sheet-label {
+  display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+  font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase;
+  color: var(--graphite-soft); margin-bottom: clamp(24px, 3.4vw, 48px);
+}
+.sheet-label b { font-weight: 500; color: var(--graphite); }
+.sheet-label i { flex: 1; min-width: 24px; height: 1px; background: var(--hairline); font-style: normal; }
+.h2 { font-size: var(--fs-h2); }
+.lead { font-size: var(--fs-lead); line-height: 1.5; color: var(--graphite-soft); max-width: 38ch; }
+.muted { color: var(--graphite-soft); }
+.small { font-size: var(--fs-small); }
+.micro { font-size: var(--fs-micro); }
+
+/* Появление при прокрутке — только opacity и transform */
+.rv { opacity: 0; transform: translate3d(0, 18px, 0); transition: opacity var(--t-slow) var(--ease), transform var(--t-slow) var(--ease-out); }
+.rv.in { opacity: 1; transform: none; }
+@media (prefers-reduced-motion: reduce) { .rv { opacity: 1; transform: none; } }
+
+/* Гигантский номер листа — своя ячейка сетки справа от заголовка, чтобы секции читались по-разному */
+.giant { display: none; }
+@media (min-width: 1000px) {
+  .giant-wrap { grid-template-columns: minmax(0, 8fr) minmax(0, 4fr) !important; align-items: end; }
+  .giant-wrap > .giant-text { display: grid; gap: 20px; }
+  .giant {
+    display: block; grid-column: 2; grid-row: 1; justify-self: end; align-self: end;
+    font-family: var(--font-display); font-weight: 300; font-size: clamp(8rem, 15vw, 15rem); line-height: 0.74; letter-spacing: -0.05em;
+    color: rgba(35, 33, 30, 0.08); pointer-events: none; user-select: none; margin-bottom: -0.04em;
+  }
+}
+/* горизонтальные ленты: без полосы прокрутки, с мягким краем справа */
+.strip-mask { -webkit-mask-image: linear-gradient(90deg, #000 calc(100% - 28px), transparent); mask-image: linear-gradient(90deg, #000 calc(100% - 28px), transparent); }
+@media (min-width: 1000px) { .strip-mask-d-off { -webkit-mask-image: none; mask-image: none; } }
