@@ -646,3 +646,14 @@ html.is-locked, html.is-locked body { overflow: hidden; }
 }
 .search-field input:focus-visible, .promo__field input:focus-visible { outline: none; }
 .cart-summary .btn .btn__content:has(.btn__aside) { width: 100%; justify-content: space-between; }
+
+/* Анимация строк корзины */
+.cart-line-wrap { border-bottom: 1px solid var(--c-line); }
+.cart-line-wrap:last-child { border-bottom: 0; }
+.cart-line-wrap .cart-line { border-bottom: 0; }
+.anim-item--entering { animation: item-in var(--d-base) var(--ease-out) both; }
+.anim-item--leaving { animation: item-out 220ms var(--ease-in-out) both; pointer-events: none; }
+@keyframes item-in { from { opacity: 0; transform: translate3d(0, 8px, 0); } to { opacity: 1; transform: none; } }
+@keyframes item-out { from { opacity: 1; transform: none; } to { opacity: 0; transform: translate3d(-24px, 0, 0); } }
+.cart-view > :not(.cart-lines) { transition: opacity var(--d-base) var(--ease-out); }
+.cart-view.is-emptying > :not(.cart-lines) { opacity: 0; }

@@ -344,3 +344,10 @@
   .dgrid { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--s-5) var(--s-4); }
 }
 @keyframes desk-cart-in { from { opacity: 0; transform: translate3d(16px, 0, 0); } to { opacity: 1; transform: none; } }
+
+@media (min-width: 1024px) {
+  .desk-cart { animation: desk-cart-in 380ms var(--ease-out) 60ms backwards; }
+  .desk-cart.is-leaving { animation: desk-cart-out 240ms var(--ease-in-out) both; pointer-events: none; }
+}
+@keyframes desk-cart-in { from { opacity: 0; transform: translate3d(24px, 0, 0); } to { opacity: 1; transform: none; } }
+@keyframes desk-cart-out { from { opacity: 1; transform: none; } to { opacity: 0; transform: translate3d(24px, 0, 0); } }

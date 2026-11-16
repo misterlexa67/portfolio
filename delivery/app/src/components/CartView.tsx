@@ -1,9 +1,10 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useReducer, useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { api, toFriendly, type Quote } from '../api';
 import { Icon } from './Icon';
 import { Button, EmptyState, Img, Money, Note, Stepper } from './ui';
 import { useToast } from './Toast';
+import { AnimatedList, LEAVE_DURATION } from './AnimatedList';
 import { rub, eta } from '../lib/format';
 import { Confirm } from './Sheet';
 
@@ -92,16 +93,33 @@ function PromoField({ quote }: { quote: Quote }) {
   );
 }
 
-export function CartView({ quote, mode }: { quote: Quote | undefined; mode: 'page' | 'panel' }) {
+export function CartView({ quote: live, mode }: { quote: Quote | undefined; mode: 'page' | 'panel' }) {
   const navigate = useNavigate();
   const toast = useToast();
   const [confirmClear, setConfirmClear] = useState(false);
-  const [comment, setComment] = useState(quote?.comment ?? '');
+  const [comment, setComment] = useState(live?.comment ?? '');
   const commentTimer = useRef<number>();
+
+  // Когда убрали последнее блюдо — даём строке спокойно уйти, и только потом показываем пустую корзину
+  const lastFull = useRef<Quote | undefined>(live);
+  const prevCount = useRef(live?.lines.length ?? 0);
+  const emptyAt = useRef(0);
+  const [, force] = useReducer((x: number) => x + 1, 0);
+  const count = live?.lines.length ?? 0;
+  if (count > 0) { lastFull.current = live; emptyAt.current = 0; }
+  else if (prevCount.current > 0 && live) emptyAt.current = Date.now();
+  prevCount.current = count;
+  const emptying = emptyAt.current > 0 && Date.now() - emptyAt.current < LEAVE_DURATION + 40;
+  useEffect(() => {
+    if (!emptying) return undefined;
+    const t = setTimeout(force, LEAVE_DURATION + 60);
+    return () => clearTimeout(t);
+  }, [emptying]);
+  const quote = live && !live.lines.length && emptying ? lastFull.current : live;
 
   useEffect(() => { setComment(quote?.comment ?? ''); }, [quote?.restaurant?.id]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  if (!quote) return <div className="cart-view cart-view--loading" aria-busy="true" />;
+  if (!quote || !live) return <div className="cart-view cart-view--loading" aria-busy="true" />;
 
   if (!quote.lines.length) {
     return (
@@ -120,7 +138,7 @@ export function CartView({ quote, mode }: { quote: Quote | undefined; mode: 'pag
   const unavailable = quote.lines.some((l) => !l.available);
 
   return (
-    <div className={`cart-view cart-view--${mode}`}>
+    <div className={`cart-view cart-view--${mode}${emptying && !live.lines.length ? ' is-emptying' : ''}`}>
       <div className="cart-view__head">
         <div>
           {mode === 'panel' && <h2 className="cart-view__title">Корзина</h2>}
@@ -139,21 +157,25 @@ export function CartView({ quote, mode }: { quote: Quote | undefined; mode: 'pag
         </Note>
       )}
 
-      <ul className="cart-lines">
-        {quote.lines.map((l) => (
-          <li key={l.lineId} className={`cart-line${l.available ? '' : ' is-off'}`}>
+      <AnimatedList
+        className="cart-lines"
+        itemClassName="cart-line-wrap"
+        items={live.lines}
+        getKey={(l) => l.lineId}
+        render={(l, phase) => (
+          <div className={`cart-line${l.available ? '' : ' is-off'}`}>
             <div className="cart-line__img"><Img src={l.image} alt="" /></div>
             <div className="cart-line__body">
               <span className="cart-line__name">{l.name}</span>
               {l.options.length > 0 && <span className="cart-line__opts">{l.options.join(', ')}</span>}
-              <span className="cart-line__price price">{l.available ? rub(l.total) : 'Нет в наличии'}</span>
+              <span className="cart-line__price price">{l.available ? <Money value={l.total} /> : 'Нет в наличии'}</span>
             </div>
             {l.available
-              ? <Stepper size="sm" value={l.qty} onChange={(v) => setQty(l.lineId, v)} label={`Количество «${l.name}»`} />
+              ? <Stepper size="sm" value={l.qty} onChange={(v) => setQty(l.lineId, v)} label={`Количество «${l.name}»`} disabled={phase === 'leaving'} />
               : <button className="icon-btn" aria-label={`Убрать «${l.name}»`} onClick={() => setQty(l.lineId, 0)}><Icon name="trash" size={18} /></button>}
-          </li>
-        ))}
-      </ul>
+          </div>
+        )}
+      />
 
       {mode === 'page' && (
         <div className="cart-extras">
