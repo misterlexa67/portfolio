@@ -1,0 +1,4 @@
+# исходные спрайты (нарезка лежит в assets/cut)
+assets/*.png
+app/node_modules/
+app/dist/
