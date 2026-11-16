@@ -1,0 +1,54 @@
+.iso { width: 100%; height: auto; overflow: visible; }
+/* появление слоя — «опускается» на место; выключение — быстрее поднимается и гаснет */
+.iso-el {
+  transition:
+    opacity 480ms var(--ease) var(--d, 0ms),
+    transform 620ms cubic-bezier(0.2, 0.9, 0.25, 1.05) var(--d, 0ms);
+}
+.iso-el.off {
+  opacity: 0; transform: translate3d(0, -30px, 0); pointer-events: none;
+  transition: opacity 320ms var(--ease), transform 360ms var(--ease);
+}
+.L-base.off { transform: translate3d(0, 16px, 0); }
+.iso-el.lift { opacity: 0.1; transform: translate3d(0, -34px, 0); }
+.L-furniture.lift { transform: translate3d(0, -46px, 0); opacity: 0.06; }
+
+/* смена мебели */
+.iso-el.entering { animation: iso-enter 560ms cubic-bezier(0.2, 0.9, 0.25, 1.05) both; }
+.iso-el.leaving { animation: iso-leave 420ms var(--ease) both; pointer-events: none; }
+@keyframes iso-enter { from { opacity: 0; transform: translate3d(0, -22px, 0); } }
+@keyframes iso-leave { to { opacity: 0; transform: translate3d(0, -16px, 0); } }
+
+/* демонтаж: старые стены растворяются */
+.iso-ghost { animation: iso-dissolve 1800ms var(--ease) both; pointer-events: none; }
+@keyframes iso-dissolve {
+  0% { opacity: 0; transform: translate3d(0, 6px, 0); }
+  18% { opacity: 1; transform: none; }
+  50% { opacity: 1; transform: none; }
+  100% { opacity: 0; transform: translate3d(0, -18px, 0); }
+}
+
+/* фокус на слоях из легенды или шкалы оплаты: остальное приглушаем */
+.iso[data-focus] .iso-el:not(.off) { opacity: 0.28; }
+.iso[data-focus~='screed'] .L-screed:not(.off),
+.iso[data-focus~='warmFloor'] .L-warmFloor:not(.off),
+.iso[data-focus~='electrics'] .L-electrics:not(.off),
+.iso[data-focus~='partitions'] .L-partitions:not(.off),
+.iso[data-focus~='walls'] .L-walls:not(.off),
+.iso[data-focus~='floor'] .L-floor:not(.off),
+.iso[data-focus~='light'] .L-light:not(.off),
+.iso[data-focus~='furniture'] .L-furniture:not(.off),
+.iso[data-focus~='conditioner'] .L-conditioner:not(.off),
+.iso[data-focus] .L-base { opacity: 1; }
+.iso[data-focus] .iso-el.lift { opacity: 0.08; }
+
+@media (prefers-reduced-motion: reduce) {
+  .iso-el { transition: opacity 1ms; }
+  .iso-el.off, .iso-el.lift, .L-furniture.lift { transform: none; }
+  .iso-el.entering, .iso-el.leaving { animation: none; }
+  .iso-el.leaving, .iso-ghost { display: none; }
+}
+
+/* Три бюджета: варианты комнаты лежат друг на друге, переключение — кроссфейд */
+.room-v { opacity: 0; transition: opacity 520ms var(--ease); }
+.room-v.on { opacity: 1; }

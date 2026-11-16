@@ -1,0 +1,21 @@
+.ba { display: grid; gap: 6px; }
+.ba-stage {
+  position: relative; border-radius: var(--radius); background: var(--paper); border: 1px solid var(--hairline); overflow: hidden;
+  aspect-ratio: 16 / 10; touch-action: pan-y; cursor: ew-resize; user-select: none; -webkit-user-select: none;
+}
+.ba-stage:focus-visible { outline: 2px solid var(--clay); outline-offset: 2px; }
+.ba-layer { position: absolute; inset: 0; display: grid; place-items: center; padding: 12px; }
+.ba-layer .iso { max-height: 100%; pointer-events: none; }
+.ba-before { background: #EDE9E2; }
+.ba-after-wrap { position: absolute; inset: 0; overflow: hidden; will-change: transform; }
+.ba-after { background: var(--paper-2); will-change: transform; }
+.ba-line { position: absolute; inset: 0; pointer-events: none; will-change: transform; }
+.ba-bar { position: absolute; left: -1px; top: 0; bottom: 0; width: 2px; background: var(--graphite); }
+.ba-knob { position: absolute; top: 50%; left: 50%; width: 36px; height: 36px; margin: -18px 0 0 -18px; border-radius: 50%; background: var(--paper-2); border: 2px solid var(--graphite); box-shadow: var(--shadow-1); transition: transform var(--t-fast) var(--ease); }
+.ba-stage:active .ba-knob { transform: scale(1.12); }
+.ba-knob::before, .ba-knob::after { content: ''; position: absolute; top: 50%; width: 6px; height: 6px; border-top: 1.5px solid var(--graphite); border-left: 1.5px solid var(--graphite); }
+.ba-knob::before { left: 8px; transform: translateY(-50%) rotate(-45deg); }
+.ba-knob::after { right: 8px; transform: translateY(-50%) rotate(135deg); }
+.ba-tag { position: absolute; top: 10px; z-index: 2; font-size: 11.5px; text-transform: uppercase; letter-spacing: 0.08em; padding: 3px 8px; border-radius: 999px; background: var(--paper-2); pointer-events: none; }
+.ba-tag-l { left: 10px; }
+.ba-tag-r { right: 10px; background: var(--graphite); color: var(--paper-2); }

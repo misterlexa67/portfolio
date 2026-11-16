@@ -1,0 +1,79 @@
+/* «Метр» — дизайн-токены. Тёплая бумага, графит, одна глина. */
+:root {
+  /* поверхности */
+  --paper: #F6F2EC;
+  --paper-2: #FBF9F5;
+  --stone: #E9E3D9;
+  --stone-deep: #D9D0C2;
+  --stone-dark: #BFB4A3;
+  --hairline: #CBC2B4;
+  --hairline-soft: rgba(35, 33, 30, 0.1);
+
+  /* текст и линии */
+  --graphite: #23211E;
+  --graphite-soft: #5C5851;
+  --graphite-mute: #6F695F;
+
+  /* акцент — только действия и выделения */
+  --clay: #AD4F2D;
+  --clay-deep: #8F3F22;
+  --clay-tint: #F1DED4;
+  --clay-glow: rgba(173, 79, 45, 0.14);
+
+  /* служебные */
+  --sage: #5F6E58;
+  --sage-tint: #E3E7DC;
+  --danger: #A23A2A;
+  --water: #DCDFDA;
+
+  /* изометрия: материалы */
+  --iso-slab: #CFC8BC;
+  --iso-screed: #B9B3A9;
+  --iso-wall-top: #FBF9F5;
+  --iso-wall-l: #E4DDD1;
+  --iso-wall-r: #D3CABC;
+  --iso-line: rgba(35, 33, 30, 0.55);
+
+  /* типографика */
+  --font-display: 'Noto Serif Display', 'Times New Roman', serif;
+  --font-ui: 'IBM Plex Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-mono: 'IBM Plex Mono', ui-monospace, 'SFMono-Regular', Menlo, monospace;
+
+  --fs-mega: clamp(3rem, 9.6vw, 10.5rem);
+  --fs-h1: clamp(2.5rem, 7vw, 6.75rem);
+  --fs-h2: clamp(2.1rem, 5.2vw, 4.75rem);
+  --fs-h3: clamp(1.45rem, 2.4vw, 2.1rem);
+  --fs-lead: clamp(1.06rem, 1.35vw, 1.28rem);
+  --fs-body: 1rem;
+  --fs-small: 0.875rem;
+  --fs-micro: 0.75rem;
+
+  /* сетка и отступы */
+  --gutter: clamp(16px, 3.2vw, 48px);
+  --max: 1440px;
+  --section-y: clamp(56px, 8vw, 112px);
+  --s-1: 4px; --s-2: 8px; --s-3: 12px; --s-4: 16px; --s-5: 24px; --s-6: 32px; --s-7: 48px; --s-8: 64px; --s-9: 96px;
+
+  --radius-s: 6px;
+  --radius: 10px;
+  --radius-l: 18px;
+
+  /* тени: мягкие, как от бумаги на столе */
+  --shadow-1: 0 1px 0 rgba(35, 33, 30, 0.04), 0 2px 6px -2px rgba(35, 33, 30, 0.08);
+  --shadow-2: 0 1px 0 rgba(35, 33, 30, 0.04), 0 12px 32px -12px rgba(35, 33, 30, 0.22);
+  --shadow-3: 0 30px 80px -30px rgba(35, 33, 30, 0.35);
+
+  /* движение */
+  --ease: cubic-bezier(0.22, 0.61, 0.24, 1);
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --t-fast: 200ms;
+  --t: 360ms;
+  --t-slow: 600ms;
+
+  --tap: 44px;
+  --sticky-h: 0px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root { --t-fast: 1ms; --t: 1ms; --t-slow: 1ms; }
+}

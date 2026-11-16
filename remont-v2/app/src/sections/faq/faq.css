@@ -1,0 +1,22 @@
+.faq-grid { display: grid; gap: 40px; }
+.gr-row { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(250px, 78%); gap: 12px; overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none; margin: 0 calc(var(--gutter) * -1) clamp(48px, 7vw, 96px); padding: 0 var(--gutter); }
+.gr-row::-webkit-scrollbar { display: none; }
+.gr-item { scroll-snap-align: start; display: grid; gap: 10px; align-content: start; padding: 22px 0 0; border-top: 2px solid var(--graphite); }
+.gr-num { font-size: 3.5rem; line-height: 0.9; color: var(--clay); }
+.gr-item b { display: flex; align-items: center; gap: 8px; font-weight: 500; font-size: 1.125rem; }
+.gr-item b .ico { color: var(--clay); flex: none; }
+.gr-item .muted { font-size: 0.9375rem; line-height: 1.5; }
+@media (min-width: 1000px) { .gr-row { grid-auto-flow: unset; grid-template-columns: repeat(4, 1fr); gap: 28px; overflow: visible; margin-left: 0; margin-right: 0; padding: 0; } }
+.faq-left .lead { margin-top: 20px; }
+.qa { border-bottom: 1px solid var(--hairline); }
+.qa:first-child { border-top: 1px solid var(--graphite); }
+.qa summary {
+  list-style: none; display: flex; justify-content: space-between; align-items: center; gap: 16px; min-height: 64px; padding: 14px 0; cursor: pointer;
+  font-size: clamp(1.05rem, 1.5vw, 1.25rem); font-weight: 500;
+}
+.qa summary::-webkit-details-marker { display: none; }
+.qa summary .ico { flex: none; transition: transform var(--t) var(--ease-out); color: var(--graphite-soft); }
+.qa[open] summary .ico { transform: rotate(45deg); color: var(--clay); }
+@media (hover: hover) { .qa summary:hover { color: var(--clay); } }
+.qa-a { padding: 0 40px 22px 0; color: var(--graphite-soft); max-width: 62ch; animation: fade var(--t) var(--ease) both; }
+@media (min-width: 1000px) { .faq-grid { grid-template-columns: 5fr 7fr; gap: clamp(40px, 6vw, 96px); } .faq-left { position: sticky; top: 96px; align-self: start; } }

@@ -1,0 +1,30 @@
+.plan { width: 100%; height: auto; overflow: visible; }
+.pl-fill { fill: transparent; transition: fill var(--t) var(--ease); }
+.pl-room.balc .pl-fill { fill: var(--water); fill-opacity: 0.35; }
+.pl-room.balc .pl-line { stroke-dasharray: 0.02 0.015; }
+.pl-line { fill: none; stroke: var(--graphite); stroke-width: 5; vector-effect: non-scaling-stroke; stroke-width: 1.2px; }
+.pl-outer { fill: none; stroke: var(--graphite); stroke-width: 3.2px; vector-effect: non-scaling-stroke; }
+.pl-room.click { cursor: pointer; outline: none; }
+@media (hover: hover) { .pl-room.click:hover .pl-fill { fill: var(--stone); } }
+.pl-room.click:focus-visible .pl-fill { fill: var(--stone); }
+.pl-room.sel .pl-fill, .pl-room.sel:hover .pl-fill { fill: var(--clay-tint); }
+.pl-room.sel .pl-line { stroke: var(--clay); stroke-width: 2px; }
+.pl-win rect { fill: var(--paper); stroke: none; }
+.pl-win line { stroke: var(--graphite); stroke-width: 1px; vector-effect: non-scaling-stroke; }
+.pl-win { stroke: var(--graphite); }
+.pl-win rect { stroke: var(--graphite); stroke-width: 1px; vector-effect: non-scaling-stroke; }
+.pl-dim line { stroke: var(--graphite-soft); stroke-width: 0.8px; vector-effect: non-scaling-stroke; }
+.pl-dim text { fill: var(--graphite-soft); font-family: var(--font-mono); letter-spacing: 0.02em; }
+.pl-label text { font-family: var(--font-ui); }
+.pl-name { fill: var(--graphite); font-weight: 500; }
+.pl-area { fill: var(--graphite-soft); font-family: var(--font-mono) !important; font-variant-numeric: tabular-nums; }
+.pl-label.sel .pl-name, .pl-label.sel .pl-area { fill: var(--clay-deep); }
+.plan-compact .pl-name { display: none; }
+
+/* v2: двери, сантехника, кухня — тонкими линиями */
+.pl-gap { stroke: var(--paper-2); stroke-width: 5px; vector-effect: non-scaling-stroke; }
+.pl-leaf { stroke: var(--graphite); stroke-width: 1.4px; vector-effect: non-scaling-stroke; }
+.pl-arc { fill: none; stroke: var(--graphite-soft); stroke-width: 0.8px; stroke-dasharray: 4 3; vector-effect: non-scaling-stroke; }
+.pl-door.entrance .pl-leaf { stroke: var(--clay); stroke-width: 2px; }
+.pl-fix > * { fill: none; stroke: var(--graphite-soft); stroke-width: 0.9px; vector-effect: non-scaling-stroke; }
+.pl-room.sel .pl-fill { transition: fill var(--t) var(--ease); }
