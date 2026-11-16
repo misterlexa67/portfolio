@@ -52,3 +52,10 @@
 /* Три бюджета: варианты комнаты лежат друг на друге, переключение — кроссфейд */
 .room-v { opacity: 0; transition: opacity 520ms var(--ease); }
 .room-v.on { opacity: 1; }
+
+/* телефон: короче анимации, сцена изолирована от остальной страницы */
+.iso-low .iso-el { transition-duration: 300ms, 360ms; }
+.iso-low .iso-el.off { transition-duration: 220ms, 240ms; }
+.calc-iso, .ba-stage, .pay-iso, .stage-photo { contain: layout paint; }
+/* телефон: подсветка слоя — мгновенно (один кадр), плавными остаются только появление и уход слоёв */
+.iso-low[data-focus] .iso-el, .iso-low .iso-el.focus-reset { transition: none; }

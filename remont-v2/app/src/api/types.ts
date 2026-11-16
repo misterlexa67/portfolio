@@ -5,7 +5,9 @@ export type HouseTypeId = 'khrushchevka' | 'brezhnevka' | 'stalinka' | 'panel90'
 export type RenovationType = 'cosmetic' | 'capital' | 'designer';
 export type BudgetLevel = 'economy' | 'standard' | 'premium';
 export type OptionId = 'demolition' | 'electrics' | 'warmFloor' | 'conditioner' | 'designProject';
-export type RoomKind = 'living' | 'bedroom' | 'kitchen' | 'bath' | 'wc' | 'hall' | 'storage' | 'balcony';
+export type RoomKind =
+  | 'living' | 'bedroom' | 'kitchen' | 'bath' | 'wc' | 'hall' | 'storage' | 'balcony'
+  | 'study' | 'wardrobe' | 'laundry' | 'gym' | 'cinema' | 'library';
 export type DistrictId =
   | 'nizhegorodsky' | 'sovetsky' | 'priroksky' | 'kanavinsky'
   | 'moskovsky' | 'sormovsky' | 'leninsky' | 'avtozavodsky';
@@ -28,6 +30,8 @@ export interface PlanRoom {
   name: string;
   rects: Rect[];         // метры, x вправо, y вниз (вид сверху)
   area: number;          // м², считается из rects
+  /** функциональная комната, выделенная из слишком большой (кабинет, гардеробная…) — не входит в число жилых комнат */
+  extra?: boolean;
 }
 
 export interface FloorPlan {

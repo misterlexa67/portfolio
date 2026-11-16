@@ -1,5 +1,5 @@
 import { PLANS, rectsArea } from './seed/plans';
-import type { CalcParams, FloorPlan, PlanRoom } from './types';
+import type { CalcParams, FloorPlan, PlanRoom, RoomKind } from './types';
 
 /* Подбор планировки под параметры расчёта: типовая → нужное число комнат и санузлов → масштаб под площадь.
    Геометрия — тоже бизнес-данные, поэтому живёт в сервисном слое. */
@@ -14,7 +14,7 @@ export function basePlan(house: FloorPlan['house'], rooms: number): FloorPlan {
 function recount(plan: FloorPlan): FloorPlan {
   plan.items.forEach((i) => { i.area = rectsArea(i.rects); });
   plan.bathrooms = plan.items.filter((i) => i.kind === 'bath').length;
-  plan.rooms = plan.items.filter((i) => i.kind === 'living' || i.kind === 'bedroom').length;
+  plan.rooms = plan.items.filter((i) => (i.kind === 'living' || i.kind === 'bedroom') && !i.extra).length;
   plan.area = Math.round(plan.items.filter((i) => i.kind !== 'balcony').reduce((s, i) => s + i.area, 0) * 10) / 10;
   return plan;
 }
@@ -54,7 +54,7 @@ function setBathrooms(plan: FloorPlan, n: number) {
 
 export function planFor(p: Pick<CalcParams, 'house' | 'rooms' | 'bathrooms' | 'area' | 'planId'>): FloorPlan {
   const plan = basePlan(p.house, p.rooms);
-  if (p.rooms >= 4) addRoom(plan);
+  for (let r = plan.rooms; r < Math.min(6, p.rooms); r++) addRoom(plan);
   setBathrooms(plan, p.bathrooms);
   recount(plan);
   const k = Math.sqrt(p.area / plan.area);
@@ -72,7 +72,68 @@ export function planFor(p: Pick<CalcParams, 'house' | 'rooms' | 'bathrooms' | 'a
     plan.scaled = true;
     recount(plan);
   }
+  subdivide(plan);
   return plan;
+}
+
+/* ---------- функциональные комнаты: квартира не превращается в пустые коробки ---------- */
+
+/** Ступень площади: от неё зависят мебель и состав комнат. */
+export const areaTier = (area: number): 1 | 2 | 3 | 4 | 5 | 6 =>
+  area <= 35 ? 1 : area <= 55 ? 2 : area <= 80 ? 3 : area <= 120 ? 4 : area <= 180 ? 5 : 6;
+
+const IDEAL: Partial<Record<RoomKind, number>> = { study: 12, wardrobe: 6, laundry: 5.5, gym: 16, cinema: 20, library: 14, storage: 4.5, bedroom: 14, bath: 5 };
+const MAX_AREA = (kind: RoomKind, tier: number): number => ({
+  living: tier >= 5 ? 38 : 30, bedroom: tier >= 5 ? 24 : 20, kitchen: tier >= 4 ? 30 : 18, hall: tier >= 5 ? 18 : 13,
+  storage: 8, wardrobe: 10, laundry: 9, bath: tier >= 5 ? 12 : 9, wc: 4, study: 18, gym: 24, cinema: 28, library: 20, balcony: 99,
+} as Record<RoomKind, number>)[kind] ?? 20;
+
+/** Какие комнаты появляются при росте площади (по порядку). */
+const QUEUE: Record<number, { kind: RoomKind; name: string }[]> = {
+  1: [], 2: [], 3: [{ kind: 'wardrobe', name: 'Гардеробная' }],
+  4: [{ kind: 'study', name: 'Кабинет' }, { kind: 'wardrobe', name: 'Гардеробная' }, { kind: 'laundry', name: 'Постирочная' }],
+  5: [{ kind: 'study', name: 'Кабинет' }, { kind: 'wardrobe', name: 'Гардеробная' }, { kind: 'laundry', name: 'Постирочная' },
+    { kind: 'bedroom', name: 'Гостевая' }, { kind: 'storage', name: 'Кладовая' }, { kind: 'wardrobe', name: 'Гардеробная мастер-спальни' }],
+  6: [{ kind: 'study', name: 'Кабинет' }, { kind: 'wardrobe', name: 'Гардеробная' }, { kind: 'laundry', name: 'Постирочная' },
+    { kind: 'cinema', name: 'Домашний кинотеатр' }, { kind: 'gym', name: 'Спортзона' }, { kind: 'library', name: 'Библиотека' },
+    { kind: 'bedroom', name: 'Гостевая' }, { kind: 'storage', name: 'Кладовая' }, { kind: 'wardrobe', name: 'Гардеробная мастер-спальни' }],
+};
+
+/** Дробит слишком большие комнаты на функциональные. Детерминированно: те же параметры — та же раскладка. */
+function subdivide(plan: FloorPlan) {
+  const tier = areaTier(plan.area);
+  const queue = [...(QUEUE[tier] ?? [])];
+  const fallback: { kind: RoomKind; name: string }[] = [{ kind: 'storage', name: 'Кладовая' }, { kind: 'study', name: 'Мастерская' }, { kind: 'library', name: 'Читальня' }];
+  let n = 0;
+  const tried = new Set<string>();
+  for (let guard = 0; guard < 18; guard++) {
+    const cands = plan.items
+      .filter((r) => r.kind !== 'balcony' && r.rects.length === 1 && !tried.has(r.id))
+      .map((r) => ({ r, ratio: r.area / MAX_AREA(r.kind, tier) }))
+      .filter((c) => c.ratio > 1.12)
+      .sort((a, b) => b.ratio - a.ratio);
+    if (!cands.length) break;
+    const room = cands[0].r;
+    // из санузла или туалета выделяем только «мокрое» или подсобное помещение
+    const wet = room.kind === 'bath' || room.kind === 'wc';
+    const fits = (k: RoomKind) => !wet || k === 'laundry' || k === 'storage' || k === 'wardrobe';
+    const qi = queue.findIndex((x) => fits(x.kind));
+    const next = qi >= 0 ? queue[qi] : wet ? { kind: 'storage' as RoomKind, name: 'Кладовая' } : cands[0].ratio > 1.5 ? fallback[n % fallback.length] : null;
+    if (!next) break;
+    const q = room.rects[0];
+    const horizontal = q.w >= q.h;
+    const long = horizontal ? q.w : q.h; const short = horizontal ? q.h : q.w;
+    const cut = Math.min(Math.max((IDEAL[next.kind] ?? 10) / short, 1.5), long - 2.2);
+    if (cut < 1.4 || short < 1.6) { tried.add(room.id); continue; } // узкую комнату не режем, берём следующую
+    if (qi >= 0) queue.splice(qi, 1);
+    // новая комната — в дальнем конце длинной стороны
+    const keep = horizontal ? { ...q, w: q.w - cut } : { ...q, h: q.h - cut };
+    const add = horizontal ? { ...q, x: q.x + q.w - cut, w: cut } : { ...q, y: q.y + q.h - cut, h: cut };
+    room.rects = [keep];
+    plan.items.push({ id: `${next.kind}-s${n}`, kind: next.kind, name: next.name, rects: [add], area: 0, extra: true });
+    n++;
+    recount(plan);
+  }
 }
 
 /* ---------- двери ---------- */
@@ -115,7 +176,7 @@ export function planDoors(plan: FloorPlan): Door[] {
     const m = (sh.lo + sh.hi) / 2;
     const w = Math.min(DOOR_W, sh.hi - sh.lo - 0.1);
     // жилые комнаты — дверь внутрь; санузлы и кладовые — наружу, в коридор (как принято по нормам)
-    const outward = ['bath', 'wc', 'storage'].includes(into.kind);
+    const outward = ['bath', 'wc', 'storage', 'laundry', 'wardrobe'].includes(into.kind);
     const toB = into === sh.b ? !outward : outward;
     const swing = (open ? 1 : toB ? 1 : -1) as 1 | -1;
     doors.push(sh.o === 'h'
@@ -135,7 +196,7 @@ export function planDoors(plan: FloorPlan): Door[] {
     else if (open && sh.hi - sh.lo > 1.6) add(sh, true, sh.b);
   }
   // 2. комната без двери — дверь по самой длинной общей стене (лучше в прихожую, кухню или санузел)
-  const pref: Record<string, number> = { hall: 0, kitchen: 1, living: 2, bath: 3, bedroom: 4, wc: 5, storage: 6 };
+  const pref: Record<string, number> = { hall: 0, kitchen: 1, living: 2, bath: 3, bedroom: 4, study: 5, wc: 6, storage: 7 };
   for (const room of rooms) {
     if (withDoor.has(room.id) || room.kind === 'hall') continue;
     const cands = shared

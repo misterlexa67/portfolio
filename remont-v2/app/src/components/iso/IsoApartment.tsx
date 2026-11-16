@@ -89,7 +89,7 @@ export function IsoApartment({ plan, layers, level, type, assembled, stagger = 1
     prev.current = layers;
     if (phase !== 'ready') return;
     const added = (p.screed !== layers.screed && layers.screed) || (p.electrics !== layers.electrics && layers.electrics) || (p.warmFloor !== layers.warmFloor && layers.warmFloor);
-    if (!added) return;
+    if (!added || d === 'low') return; // на телефоне без «подъёма» отделки — экономим кадры
     setLift(true);
     later('lift', 1500, () => setLift(false));
   }, [layers, phase]); // eslint-disable-line react-hooks/exhaustive-deps
@@ -135,7 +135,7 @@ export function IsoApartment({ plan, layers, level, type, assembled, stagger = 1
   const counters: Record<string, number> = {};
   const delayFor = (layer: LayerKey) => {
     const i = (counters[layer] = (counters[layer] ?? -1) + 1);
-    const cascade = Math.min(i * (d === 'low' ? 4 : 6), 200);
+    const cascade = d === 'low' ? 0 : Math.min(i * 6, 200);
     return (phase === 'assembling' ? LAYER_ORDER.indexOf(layer) * stagger : 0) + cascade;
   };
 
@@ -149,7 +149,7 @@ export function IsoApartment({ plan, layers, level, type, assembled, stagger = 1
   const [vx, vy] = scene.viewBox.split(' ').map(Number);
   return (
     <svg
-      className={`iso ${className ?? ''}`}
+      className={`iso${d === 'low' ? ' iso-low' : ''} ${className ?? ''}`}
       viewBox={scene.viewBox}
       role="img"
       aria-label={title ?? `Изометрия квартиры ${plan.area} м²`}

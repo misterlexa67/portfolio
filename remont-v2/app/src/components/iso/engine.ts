@@ -1,5 +1,6 @@
-import type { BudgetLevel, FloorPlan, PlanRoom, RenovationType, RoomKind } from '../../api';
+import type { BudgetLevel, FloorPlan, PlanRoom, RenovationType } from '../../api';
 import { furnish, mainRect, tierFor, type FurnBox } from './furniture';
+import { planDoors } from '../../api/geometry';
 import { PALETTES, floorMaterial, type Palette } from './materials';
 
 /* Изометрический движок: планировка → список граней с порядком отрисовки.
@@ -154,13 +155,6 @@ function walls(plan: FloorPlan): Seg[] {
   return segs;
 }
 
-const hasDoor = (s: Seg) => {
-  if (s.outer || !s.rooms[1]) return false;
-  const kinds = [s.rooms[0].kind, s.rooms[1].kind];
-  const hall = kinds.includes('hall');
-  const open: RoomKind[] = ['kitchen', 'living'];
-  return (hall && s.b - s.a > 1.1) || (open.includes(kinds[0]) && open.includes(kinds[1]) && s.b - s.a > 1.6);
-};
 
 /* ---------- сцена ---------- */
 
@@ -207,12 +201,12 @@ export function buildScene(plan: FloorPlan, opts: SceneOpts): Scene {
         { kind: 'poly', pts: poly([[q.x + i - 0.08, q.y + i - 0.08, 0.012], [q.x + i + 0.08, q.y + i - 0.08, 0.012], [q.x + i + 0.08, q.y + i + 0.08, 0.012], [q.x + i - 0.08, q.y + i + 0.08, 0.012]]), fill: pal.cable },
       ] });
     }
-    flat.push({ key: `floor-${k}`, layer: 'floor', lift: true, shapes: [{ kind: 'poly', pts: quad(0.02), fill: `url(#${floorMaterial(room.kind, opts.level)})`, stroke: L, sw: 0.35 }] });
+    flat.push({ key: `floor-${k}`, layer: 'floor', lift: true, shapes: [{ kind: 'poly', pts: quad(0.02), fill: opts.detail === 'low' ? FLOOR_SOLID[floorMaterial(room.kind, opts.level)] ?? '#CDA77A' : `url(#${floorMaterial(room.kind, opts.level)})`, stroke: L, sw: 0.35 }] });
   }));
 
   // свет: тёплые пятна на полу и подвесы
   rooms.forEach((room) => {
-    if (!['living', 'bedroom', 'kitchen', 'hall'].includes(room.kind)) return;
+    if (!['living', 'bedroom', 'kitchen', 'hall', 'study', 'library', 'gym', 'cinema', 'wardrobe'].includes(room.kind)) return;
     const R = mainRect(room);
     const cx = R.x + R.w / 2; const cy = R.y + R.h / 2;
     const r = Math.min(R.w, R.h) * (room.kind === 'hall' ? 0.35 : 0.42);
@@ -238,13 +232,17 @@ export function buildScene(plan: FloorPlan, opts: SceneOpts): Scene {
 
   // стены
   const step = opts.detail === 'high' ? 0.7 : 1.1;
+  const doors = planDoors(plan);
   walls(plan).forEach((s, si) => {
     const isBack = s.outer === 'back';
     const h = isBack ? backH : s.outer === 'front' ? frontH : innerH;
     let parts: [number, number][] = [[s.a, s.b]];
-    if (hasDoor(s)) {
-      const m = (s.a + s.b) / 2;
-      parts = subtract(parts, [m - 0.42, m + 0.42]);
+    // проёмы — там же, где двери на чертеже
+    for (const d of doors) {
+      if (d.o !== s.o) continue;
+      const at = d.o === 'h' ? d.y1 : d.x1;
+      const lo = d.o === 'h' ? d.x1 : d.y1; const hi = d.o === 'h' ? d.x2 : d.y2;
+      if (Math.abs(at - s.at) < 0.03 && (lo + hi) / 2 > s.a && (lo + hi) / 2 < s.b) parts = subtract(parts, [lo, hi]);
     }
     for (const [a, b] of parts) {
       const n = isBack ? 1 : Math.max(1, Math.ceil((b - a) / step));
@@ -259,7 +257,7 @@ export function buildScene(plan: FloorPlan, opts: SceneOpts): Scene {
         const accent = isBack && opts.type === 'designer' && (s.rooms[0].kind === 'living' || s.rooms[0].kind === 'bedroom');
         const finish: [string, string, string] = accent ? pal.accentWall : [pal.wallTop, pal.wallL, pal.wallR];
         const item: BoxItem = { key: `${key}${accent ? '-a' : ''}`, layer: 'partitions', box, colors: [pal.wallBareTop, pal.wallBareL, pal.wallBareR], line: L, finish, o: s.o, cap: p === 0 || p === n - 1 };
-        if (isBack) back.push(...wallItems(item, pal));
+        if (isBack) back.push(...wallItems(item, pal, opts.detail));
         else boxes.push(item);
       }
     }
@@ -290,6 +288,7 @@ export function buildScene(plan: FloorPlan, opts: SceneOpts): Scene {
   const type = opts.type ?? 'capital';
   const idx: Record<string, number> = {};
   const marks: Record<string, FurnBox['mark']> = {};
+  const hasWc = rooms.some((r) => r.kind === 'wc');
   rooms.forEach((room) => {
     const n = (idx[room.kind] = (idx[room.kind] ?? -1) + 1);
     const R = mainRect(room);
@@ -299,19 +298,28 @@ export function buildScene(plan: FloorPlan, opts: SceneOpts): Scene {
       bathIndex: room.kind === 'bath' ? n : 0,
       storageIndex: room.kind === 'storage' ? n : 0,
       kitchenLiving: room.kind === 'kitchen' && (/гостин/i.test(room.name) || tier >= 4),
-      backH,
-      touchesBack: Math.abs(R.y) < 0.02 || Math.abs(R.x) < 0.02,
+      backH, wallT: T, hasWc, alt: (Math.floor(plan.area / 12) % 2) as 0 | 1,
+      backY: Math.abs(R.y) < 0.02,
+      backX: Math.abs(R.x) < 0.02,
     });
     f.boxes.forEach((fb) => { boxes.push({ key: fb.key, layer: 'furniture', box: fb.box, colors: fb.colors, line: L }); if (fb.mark) marks[fb.key] = fb.mark; });
-    f.flats.forEach((fl, i) => flatFurn.push({
-      key: `${room.id}-t${tier}${type[0]}-flat${i}`, layer: 'furniture', lift: true,
-      shapes: [{ kind: 'poly', pts: poly(fl.pts), fill: fl.kind === 'rug' ? pal.rug : pal.water, stroke: L, sw: fl.kind === 'rug' ? 0.4 : 0.3 }],
+    f.flats.forEach((fl) => flatFurn.push({
+      key: fl.key, layer: 'furniture', lift: true,
+      shapes: [{ kind: 'poly', pts: poly(fl.pts), fill: fl.kind === 'rug' ? pal.rug : fl.kind === 'mat' ? '#5C5851' : pal.water, stroke: L, sw: fl.kind === 'water' ? 0.3 : 0.4 }],
     }));
+    // картины и зеркала на высоких стенах
+    f.art.forEach((a) => {
+      const yy = T + 0.004;
+      const pts: [number, number, number][] = a.plane === 'y'
+        ? [[a.u0, yy, a.z0], [a.u1, yy, a.z0], [a.u1, yy, a.z1], [a.u0, yy, a.z1]]
+        : [[yy, a.u0, a.z0], [yy, a.u1, a.z0], [yy, a.u1, a.z1], [yy, a.u0, a.z1]];
+      back.push({ key: a.key, layer: 'furniture', shapes: [{ kind: 'poly', pts: poly(pts), fill: a.fill, stroke: a.frame, sw: 1.6 }] });
+    });
   });
 
   // кондиционеры на задних стенах жилых комнат
   rooms.forEach((room) => {
-    if (room.kind !== 'living' && room.kind !== 'bedroom') return;
+    if (!['living', 'bedroom', 'study', 'library', 'gym', 'cinema'].includes(room.kind)) return;
     const R = mainRect(room);
     if (Math.abs(R.y) < 0.02) {
       const x0 = R.x + R.w * 0.62; const x1 = Math.min(R.x + R.w - 0.15, x0 + 0.85);
@@ -328,7 +336,7 @@ export function buildScene(plan: FloorPlan, opts: SceneOpts): Scene {
 
   const sorted: Item[] = [];
   for (const b of sortBoxes(boxes)) {
-    if (b.finish) sorted.push(...wallItems(b, pal));
+    if (b.finish) sorted.push(...wallItems(b, pal, opts.detail));
     else {
       const shapes = boxShapes(b.box, b.colors, b.line ?? L);
       const m = marks[b.key];
@@ -337,6 +345,22 @@ export function buildScene(plan: FloorPlan, opts: SceneOpts): Scene {
         // фасады шкафов: вертикальные швы
         const n = Math.max(1, Math.round((x1 - x0) / 0.5));
         for (let i = 1; i < n; i++) { const x = x0 + ((x1 - x0) * i) / n; shapes.push({ kind: 'line', pts: poly([[x, y1, z0 + 0.04], [x, y1, z1 - 0.04]]), stroke: L, sw: 0.5 }); }
+      }
+      if (m === 'books') {
+        // полки и корешки книг на фасаде стеллажа
+        const shelves = Math.max(2, Math.round((z1 - z0) / 0.36));
+        const tones = ['#B9A58C', '#8C9A7A', '#AD4F2D', '#D9CDBB', '#5C5851'];
+        for (let i = 1; i < shelves; i++) {
+          const z = z0 + ((z1 - z0) * i) / shelves;
+          shapes.push({ kind: 'line', pts: poly([[x0, y1, z], [x1, y1, z]]), stroke: L, sw: 0.5 });
+          if (opts.detail === 'high') {
+            const w = (x1 - x0);
+            for (let k = 0; k < Math.min(4, Math.floor(w / 0.35)); k++) {
+              const bx = x0 + 0.06 + k * (w / Math.min(4, Math.floor(w / 0.35))); const bw = Math.min(0.22, w * 0.18);
+              shapes.push({ kind: 'poly', pts: poly([[bx, y1 + 0.001, z + 0.02], [bx + bw, y1 + 0.001, z + 0.02], [bx + bw, y1 + 0.001, z + 0.26], [bx, y1 + 0.001, z + 0.26]]), fill: tones[(i + k) % tones.length], op: 0.85 });
+            }
+          }
+        }
       }
       if (m === 'round') {
         // люк стиральной машины
@@ -371,7 +395,7 @@ export function buildScene(plan: FloorPlan, opts: SceneOpts): Scene {
 }
 
 /** Стена = голая кладка (перегородки) + отделка поверх (слой «отделка стен»). */
-function wallItems(b: BoxItem, pal: Palette): Item[] {
+function wallItems(b: BoxItem, pal: Palette, detail: SceneOpts['detail'] = 'high'): Item[] {
   const shapes = (c: [string, string, string]) => {
     const out = wallShapes(b.box, c, b.line ?? pal.line, b.o ?? 'h');
     // торцы стен у проёмов и концов — с линией
@@ -383,6 +407,8 @@ function wallItems(b: BoxItem, pal: Palette): Item[] {
     }
     return out;
   };
+  // на телефоне — одна стена вместо двух (кладка под отделкой всё равно не видна): вдвое меньше элементов
+  if (detail === 'low' && b.finish) return [{ key: `${b.key}-fin`, layer: 'partitions', shapes: shapes(b.finish) }];
   const bare: Item = { key: `${b.key}-bare`, layer: 'partitions', shapes: shapes(b.colors) };
   if (!b.finish) return [bare];
   return [bare, { key: `${b.key}-fin`, layer: 'walls', shapes: shapes(b.finish) }];
@@ -407,3 +433,9 @@ export function buildGhosts(plan: FloorPlan): Item[] {
   });
   return out;
 }
+
+/** Однотонные полы для телефона: узорные заливки дорого перерисовывать на 60 fps. */
+const FLOOR_SOLID: Record<string, string> = {
+  'iso-wood-economy': '#E3D2B4', 'iso-wood-standard': '#CBA477', 'iso-wood-premium': '#9C7149',
+  'iso-tile-economy': '#E4E1DB', 'iso-tile-standard': '#D3CDC2', 'iso-tile-premium': '#E6E1DA',
+};

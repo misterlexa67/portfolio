@@ -185,7 +185,7 @@ export function Calculator() {
               <div className={flash('rooms').trim()}>
                 <span className="cf-k">Комнат</span>
                 <div className="chips" role="radiogroup" aria-label="Количество комнат">
-                  {[1, 2, 3, 4].map((n) => <button key={n} className="chip chip-num" role="radio" aria-checked={params.rooms === n} onClick={() => set({ rooms: n })}>{n === 4 ? '4+' : n}</button>)}
+                  {[1, 2, 3, 4, 5, 6].map((n) => <button key={n} className="chip chip-num" role="radio" aria-checked={params.rooms === n} onClick={() => set({ rooms: n })}>{n === 6 ? '6+' : n}</button>)}
                 </div>
               </div>
               <div className={flash('bathrooms').trim()}>

@@ -57,7 +57,7 @@ export const PALETTES: Record<BudgetLevel, Palette> = {
 };
 
 export function floorMaterial(kind: RoomKind, level: BudgetLevel): string {
-  if (kind === 'bath' || kind === 'wc') return `iso-tile-${level}`;
+  if (kind === 'bath' || kind === 'wc' || kind === 'laundry' || kind === 'gym') return `iso-tile-${level}`;
   if (kind === 'kitchen') return level === 'economy' ? 'iso-tile-economy' : `iso-wood-${level}`;
   if (kind === 'hall' || kind === 'storage') return level === 'premium' ? 'iso-tile-premium' : `iso-wood-${level}`;
   return `iso-wood-${level}`;

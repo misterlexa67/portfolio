@@ -22,7 +22,7 @@ export function normalizeParams(p: CalcParams, s: PriceSettings, strict = false)
   return {
     area: Math.round(clamped * 10) / 10,
     house: s.houseCoef[p.house] !== undefined ? p.house : 'panel90',
-    rooms: Math.min(4, Math.max(1, Math.round(p.rooms || 1))),
+    rooms: Math.min(6, Math.max(1, Math.round(p.rooms || 1))),
     bathrooms: Math.min(3, Math.max(1, Math.round(p.bathrooms || 1))),
     type: s.worksPerM2[p.type] !== undefined ? p.type : 'capital',
     level: s.budget[p.level] ? p.level : 'standard',

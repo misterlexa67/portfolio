@@ -19,6 +19,7 @@ export const HOUSE_TYPES: HouseType[] = [
 const NAMES: Record<RoomKind, string> = {
   living: 'Гостиная', bedroom: 'Спальня', kitchen: 'Кухня', bath: 'Санузел', wc: 'Туалет',
   hall: 'Прихожая', storage: 'Кладовая', balcony: 'Балкон',
+  study: 'Кабинет', wardrobe: 'Гардеробная', laundry: 'Постирочная', gym: 'Спортзона', cinema: 'Кинотеатр', library: 'Библиотека',
 };
 
 type RoomDef = [RoomKind, ...Rect[]] | [RoomKind, string, ...Rect[]];
