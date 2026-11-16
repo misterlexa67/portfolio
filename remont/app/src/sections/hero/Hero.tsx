@@ -6,7 +6,7 @@ import { Icon } from '../../components/Icon';
 import { useMagnet } from '../../components/ui';
 import { useApi } from '../../lib/hooks';
 import { rub, num, area } from '../../lib/format';
-import { scrollToId } from '../../state/calc';
+import { scrollToId, useCalc } from '../../state/calc';
 import { useNearest, useTexts } from '../shared';
 import './hero.css';
 
@@ -14,6 +14,7 @@ const HERO: CalcParams = { area: 63.6, house: 'novostroyka', rooms: 2, bathrooms
 
 export function Hero() {
   const texts = useTexts();
+  const { restore } = useCalc();
   const nearest = useNearest();
   const magnet = useMagnet();
   const plan = useMemo(() => api.plans.forParams(HERO), []);
@@ -77,6 +78,11 @@ export function Hero() {
             <span className="mono hp-n">₽/м²</span>
             <b className="num">работы от {from ? num(from.worksPerM2) : '—'} ₽</b>
             <span className="muted small num">под ключ с материалами — от {from ? num(from.turnkeyPerM2) : '—'} ₽/м²</span>
+            {from && (
+              <button className="link small hp-check" onClick={() => { restore(from.turnkeyParams, 'calculator'); scrollToId('calc'); }}>
+                Проверить в калькуляторе
+              </button>
+            )}
           </li>
         </ol>
       </div>

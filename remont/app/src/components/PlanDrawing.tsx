@@ -25,7 +25,15 @@ export function PlanDrawing({ plan, selected, onSelect, animate = true, compact 
     const q = [...room.rects].sort((a, b) => b.w * b.h - a.w * a.h)[0];
     const cx = (q.x + q.w / 2) * U; const cy = (q.y + q.h / 2) * U;
     const small = q.w < 1.5 || q.h < 1.3;
-    return { cx, cy, small };
+    // в узкой комнате подпись мельче — если влезает по ширине, показываем название
+    const nameFs = small ? fs * 0.72 : fs;
+    const fitsW = (t: string) => t.length * nameFs * 0.56 <= q.w * U * 0.92;
+    const tallEnough = q.h * U >= nameFs * 2.6;
+    // полное название → первое слово → короткое по типу комнаты
+    const SHORT: Record<string, string> = { bath: 'Санузел', wc: 'Туалет', storage: 'Кладовая', hall: 'Прихожая', kitchen: 'Кухня' };
+    const candidates = small ? [room.name, room.name.split(' ').slice(-1)[0], SHORT[room.kind] ?? room.name, room.kind === 'bath' ? 'С/у' : ''] : [room.name];
+    const fitName = candidates.map((t) => t.charAt(0).toUpperCase() + t.slice(1)).find((t) => t && fitsW(t));
+    return { cx, cy, small, nameFs, showName: !small || (tallEnough && !!fitName), shortName: fitName ?? room.name };
   };
 
   // окна на наружных стенах (верхняя кромка и правая/нижняя для кухонь)
@@ -87,11 +95,12 @@ export function PlanDrawing({ plan, selected, onSelect, animate = true, compact 
 
       {/* подписи */}
       {plan.items.map((room) => {
-        const { cx, cy, small } = label(room);
+        const { cx, cy, small, nameFs, showName, shortName } = label(room);
+        const name = small ? shortName : room.name.length > 14 && room.rects[0].w < 2.6 ? room.name.split(' ')[0] : room.name;
         return (
           <g key={`t-${room.id}`} className={`pl-label${selected === room.id ? ' sel' : ''}`} data-fade pointerEvents="none">
-            {!small && <text x={cx} y={cy - fs * 0.25} fontSize={fs} textAnchor="middle" className="pl-name">{room.name.length > 14 && room.rects[0].w < 2.6 ? room.name.split(' ')[0] : room.name}</text>}
-            <text x={cx} y={small ? cy + fs * 0.35 : cy + fs * 1.05} fontSize={fs * (small ? 0.8 : 0.92)} textAnchor="middle" className="pl-area">{fmtA(room.area)}</text>
+            {showName && <text x={cx} y={cy - nameFs * 0.25} fontSize={nameFs} textAnchor="middle" className="pl-name">{name}</text>}
+            <text x={cx} y={showName ? cy + nameFs * 1.05 : cy + fs * 0.35} fontSize={fs * (small ? 0.72 : 0.92)} textAnchor="middle" className="pl-area">{fmtA(room.area)}</text>
           </g>
         );
       })}

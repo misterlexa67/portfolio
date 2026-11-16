@@ -3,7 +3,7 @@ import { read, write } from './store';
 import { call } from './transport';
 import type { BudgetLevel, CalcParams, Estimate, EstimateSnapshot, PriceSettings } from './types';
 import { BUDGET_LEVELS, RENOVATION_TYPES } from './seed/catalog';
-import { HOUSE_TYPES } from './seed/plans';
+import { HOUSE_TYPES, PLANS } from './seed/plans';
 
 /* Сервис расчётов. Калькулятор, три бюджета, смета, PDF и превью в админке — всё через него. */
 
@@ -45,14 +45,21 @@ export const estimates = {
     }), [40, 90]);
   },
 
-  /** Минимальная цена работ за м² — для первого экрана. */
-  priceFrom(): Promise<{ worksPerM2: number; turnkeyPerM2: number }> {
+  /** «от … ₽/м²» для первого экрана. Под ключ — минимум среди типовых квартир при косметическом ремонте
+      уровня «Эконом» без опций; возвращаем и параметры, чтобы калькулятор показал то же число. */
+  priceFrom(): Promise<{ worksPerM2: number; turnkeyPerM2: number; turnkeyParams: CalcParams }> {
     return call(() => {
       const s = read('settings');
-      const e = computeEstimate({ ...TYPICAL_2ROOM, house: 'novostroyka', type: 'cosmetic', level: 'economy', options: [] }, s);
+      let best: { perM2: number; params: CalcParams } | null = null;
+      for (const p of PLANS) {
+        const params: CalcParams = { area: p.area, house: p.house, rooms: p.rooms, bathrooms: p.bathrooms, type: 'cosmetic', level: 'economy', options: [], planId: p.id };
+        const e = computeEstimate(params, s);
+        if (!best || e.perM2 < best.perM2) best = { perM2: e.perM2, params };
+      }
       return {
         worksPerM2: Math.round(s.worksPerM2.cosmetic * s.budget.economy.works / 100) * 100,
-        turnkeyPerM2: e.perM2,
+        turnkeyPerM2: best!.perM2,
+        turnkeyParams: best!.params,
       };
     }, [60, 120]);
   },
