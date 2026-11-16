@@ -35,8 +35,12 @@ function DesktopCart() {
 
 function ClientLayout() {
   const { pathname } = useLocation();
+  const { quote } = useStore();
   const isHome = pathname === '/';
-  const fullWidth = ['/checkout', '/cart'].includes(pathname) || pathname.startsWith('/order');
+  // Пока корзина пуста, правой колонки нет — контент занимает всю ширину.
+  // Колонка с корзиной появляется после первого добавленного блюда.
+  const cartEmpty = !quote?.lines.length;
+  const fullWidth = cartEmpty || ['/checkout', '/cart'].includes(pathname) || pathname.startsWith('/order');
   const noNav = pathname === '/checkout';
   return (
     <div className={`client${isHome ? ' is-home' : ''}${noNav ? ' no-nav' : ''}`}>

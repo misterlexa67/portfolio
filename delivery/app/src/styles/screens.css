@@ -332,3 +332,15 @@
 .profile__col { display: flex; flex-direction: column; }
 .profile__col > * { min-width: 0; }
 .search-field { min-width: 0; }
+
+/* Десктоп: без пустой колонки. Корзина выезжает справа после первого добавления */
+@media (min-width: 1024px) {
+  .desk-cart { animation: desk-cart-in var(--d-slow) var(--ease-out) backwards; }
+  .client__body.is-full .rgrid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .client__body.is-full .hero__art { max-width: 320px; }
+}
+@media (min-width: 1280px) {
+  .client__body.is-full .rgrid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .dgrid { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--s-5) var(--s-4); }
+}
+@keyframes desk-cart-in { from { opacity: 0; transform: translate3d(16px, 0, 0); } to { opacity: 1; transform: none; } }
