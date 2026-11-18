@@ -88,7 +88,7 @@ export async function downloadEstimatePdf(e: Estimate, plan: FloorPlan, texts: S
   doc.addFileToVFS('plex-400.ttf', reg); doc.addFont('plex-400.ttf', 'Plex', 'normal');
   doc.addFileToVFS('plex-600.ttf', semi); doc.addFont('plex-600.ttf', 'Plex', 'bold');
   doc.addFileToVFS('serif-400.ttf', serif); doc.addFont('serif-400.ttf', 'Serif', 'normal');
-  doc.setProperties({ title: `Смета ${estimateNumber(e)} — Метр`, author: 'Метр (демо)', subject: 'Смета на ремонт квартиры' });
+  doc.setProperties({ title: `Смета ${estimateNumber(e)} — Метр`, author: 'Метр', subject: 'Смета на ремонт квартиры' });
 
   const p = e.params;
   const L = 18; const R = 192; const W = R - L;
@@ -104,7 +104,7 @@ export async function downloadEstimatePdf(e: Estimate, plan: FloorPlan, texts: S
     set(7.5, MUTE);
     const c = texts?.contacts;
     doc.text(c ? `${c.phone} · ${c.email} · ${c.hours}` : 'Метр', L, 288);
-    doc.text(`Демо-концепт, бизнес вымышленный · смета ${no} · стр. ${page}`, R, 288, { align: 'right' });
+    doc.text(`Смета ${no} · стр. ${page}`, R, 288, { align: 'right' });
   };
   const newPage = () => { footer(); doc.addPage(); page += 1; };
 
@@ -112,7 +112,6 @@ export async function downloadEstimatePdf(e: Estimate, plan: FloorPlan, texts: S
   doc.setFillColor(...PAPER); doc.rect(0, 0, 210, 297, 'F');
   set(30, INK, 'Serif'); doc.text('Метр', L, 28);
   set(8, MUTE); doc.text('РЕМОНТ КВАРТИР · НИЖНИЙ НОВГОРОД', L, 34);
-  set(8, CLAY); doc.text('ДЕМО-КОНЦЕПТ, БИЗНЕС ВЫМЫШЛЕННЫЙ', R, 22, { align: 'right' });
   set(9, SOFT);
   doc.text(`Смета ${no}`, R, 28, { align: 'right' });
   doc.text(new Date(e.createdAt).toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' }), R, 33, { align: 'right' });

@@ -19,13 +19,13 @@ function WalletCard() {
     <section className="wallet-card" aria-labelledby="w-title">
       <div className="wallet-card__top">
         <div>
-          <p className="wallet-card__label" id="w-title">Демо-баланс</p>
+          <p className="wallet-card__label" id="w-title">Баланс</p>
           <p className="wallet-card__value">{wallet ? <Money value={wallet.balance} /> : <Skeleton w={120} h={36} />}</p>
-          <p className="wallet-card__note">Вымышленные деньги — для оплаты заказов и чаевых в демо</p>
+          <p className="wallet-card__note">Для оплаты заказов и чаевых</p>
         </div>
         <span className="wallet-card__icon"><Icon name="wallet" size={24} /></span>
       </div>
-      <Button size="lg" block onClick={() => openTopUp()} icon="plus">Пополнить демо-баланс</Button>
+      <Button size="lg" block onClick={() => openTopUp()} icon="plus">Пополнить баланс</Button>
       {tx.length > 0 && (
         <>
           <ul className="tx-list">
@@ -161,7 +161,7 @@ export function ProfileScreen() {
     try {
       await api.profile.resetDemo();
       setConfirmReset(false);
-      toast({ text: 'Демо-данные сброшены: баланс, заказы и корзина как в первый раз', tone: 'success' });
+      toast({ text: 'Данные сброшены: баланс, заказы и корзина как в первый раз', tone: 'success' });
       navigate('/');
     } catch (e) { toast({ text: toFriendly(e).message, tone: 'danger' }); } finally { setBusy(false); }
   };
@@ -172,7 +172,7 @@ export function ProfileScreen() {
         <span className="profile__avatar" aria-hidden="true"><Icon name="user" size={26} /></span>
         <div>
           <h1 className="h1">Профиль</h1>
-          <p className="muted">Гость · демо-аккаунт</p>
+          <p className="muted">Гость</p>
         </div>
       </div>
       <div className="container profile__grid">
@@ -184,16 +184,16 @@ export function ProfileScreen() {
           <section className="p-sec" aria-labelledby="p-fav"><h2 className="h3" id="p-fav">Избранное</h2><Favorites /></section>
           <section className="p-sec" aria-labelledby="p-addr"><h2 className="h3" id="p-addr">Адреса</h2><Addresses /></section>
           <section className="p-sec p-sec--quiet">
-            <Link to="/admin" className="p-link"><Icon name="lock" size={20} /><span><b>Панель владельца</b><span className="muted t-sm">Демо-доступ, PIN 0000</span></span><Icon name="chevronRight" size={18} /></Link>
-            <button className="p-link p-link--danger" onClick={() => setConfirmReset(true)}><Icon name="refresh" size={20} /><span><b>Сбросить демо-данные</b><span className="muted t-sm">Баланс, заказы, корзина и адреса — как при первом входе</span></span></button>
+            <Link to="/admin" className="p-link"><Icon name="lock" size={20} /><span><b>Панель владельца</b><span className="muted t-sm">PIN: 0000</span></span><Icon name="chevronRight" size={18} /></Link>
+            <button className="p-link p-link--danger" onClick={() => setConfirmReset(true)}><Icon name="refresh" size={20} /><span><b>Сбросить данные</b><span className="muted t-sm">Баланс, заказы, корзина и адреса — как при первом входе</span></span></button>
           </section>
         </div>
       </div>
       <DemoFooter />
       <Confirm
         open={confirmReset}
-        title="Сбросить демо-данные?"
-        text="Вернём стартовый демо-баланс, очистим заказы, корзину, избранное и адреса. Меню ресторанов останется как настроил владелец."
+        title="Сбросить данные?"
+        text="Вернём стартовый баланс, очистим заказы, корзину, избранное и адреса. Меню ресторанов останется как настроил владелец."
         confirmLabel="Сбросить"
         danger
         loading={busy}

@@ -53,7 +53,6 @@ function PinGate({ onOk }: { onOk: () => void }) {
   };
   return (
     <>
-      <div className="demobar"><span className="mono">Демо-концепт, бизнес вымышленный · демо-авторизация</span></div>
       <main className="adm-gate">
         <form className="adm-gate-card" onSubmit={submit}>
           <Logo href="../" />
@@ -62,9 +61,9 @@ function PinGate({ onOk }: { onOk: () => void }) {
           <label className="field"><span>PIN-код</span>
             <input className="input adm-pin num" inputMode="numeric" autoComplete="one-time-code" maxLength={4} value={pin} onChange={(e) => setPin(e.target.value.replace(/\D/g, ''))} aria-invalid={!!err || undefined} autoFocus />
           </label>
+          <p className="adm-pin-hint">PIN: 0000</p>
           {err && <p className="err" role="alert">{err}</p>}
           <button className="btn btn-primary btn-block" disabled={pin.length < 4 || busy}>{busy ? <Spinner /> : <Icon name="lock" size={18} />} Войти</button>
-          <p className="adm-demo-pin"><Icon name="info" size={16} /> Демо-доступ: PIN <b className="num">0000</b>. Это не настоящая защита — в реальном проекте будет вход по SMS.</p>
         </form>
       </main>
     </>
@@ -76,19 +75,18 @@ function Shell({ onLogout }: { onLogout: () => void }) {
   const toast = useToast();
   const logout = async () => { await api.auth.logout('admin'); onLogout(); };
   const reset = async () => {
-    if (!window.confirm('Вернуть все демо-данные к исходным? Заявки, цены и тексты сбросятся.')) return;
+    if (!window.confirm('Вернуть все данные к исходным? Заявки, цены и тексты сбросятся.')) return;
     await api.demo.reset();
-    toast('Демо-данные восстановлены', 'ok');
+    toast('Данные восстановлены', 'ok');
   };
   return (
     <div className="adm">
-      <div className="demobar"><span className="mono">Демо-концепт · изменения сохраняются в этом браузере и сразу видны на сайте</span></div>
       <header className="adm-hdr">
         <div className="adm-hdr-in">
           <Logo href="../" />
           <span className="mono adm-k">Панель владельца</span>
           <a className="btn btn-s btn-ghost adm-site" href="../" target="_blank" rel="noopener"><Icon name="external" size={16} /> <span>Открыть сайт</span></a>
-          <button className="btn btn-s btn-quiet" onClick={reset} title="Сбросить демо-данные"><Icon name="settings" size={16} /><span className="adm-hide-s">Сброс</span></button>
+          <button className="btn btn-s btn-quiet" onClick={reset} title="Сбросить данные"><Icon name="settings" size={16} /><span className="adm-hide-s">Сброс</span></button>
           <button className="btn btn-s btn-quiet" onClick={logout} aria-label="Выйти"><Icon name="logout" size={16} /></button>
         </div>
         <nav className="adm-tabs" aria-label="Разделы панели">

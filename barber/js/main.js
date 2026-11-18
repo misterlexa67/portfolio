@@ -717,7 +717,7 @@ saveBtn.addEventListener('click', () => {
   g.save(); g.shadowColor = 'rgba(0,0,0,.55)'; g.shadowBlur = 60; g.shadowOffsetY = 30;
   g.beginPath(); g.roundRect ? g.roundRect(200, 172, CW, CH, 22) : g.rect(200, 172, CW, CH); g.fillStyle = '#000'; g.fill(); g.restore();
   g.save(); g.beginPath(); g.roundRect ? g.roundRect(200, 172, CW, CH, 22) : g.rect(200, 172, CW, CH); g.clip(); g.drawImage(face, 200, 172); g.restore();
-  g.fillStyle = 'rgba(239,230,210,.5)'; g.font = '500 20px Jost'; g.textAlign = 'center'; g.fillText('ДЕМО-КОНЦЕПТ · БИЗНЕС ВЫМЫШЛЕННЫЙ', 800, 1040);
+  g.fillStyle = 'rgba(239,230,210,.5)'; g.font = '500 20px Jost'; g.textAlign = 'center'; g.fillText('ОСОБНЯК · НИЖНИЙ НОВГОРОД', 800, 1040);
   const a = document.createElement('a'); a.download = 'osobnyak-karta.png'; a.href = out.toDataURL('image/png'); a.click();
 });
 // плоская карта (для слабых устройств): крутится пальцем
@@ -802,7 +802,7 @@ new IntersectionObserver((es, o) => { if (es[0].isIntersecting && es[0].intersec
     err.textContent = '';
     envCard.textContent = 'R.S.V.P. · ' + name.value.trim();
     const d = new Date(form.day.value);
-    $('#rdSub').textContent = `${name.value.trim()}, вас ждали бы ${d.toLocaleDateString('ru-RU', { day: 'numeric', month: 'long' })} в ${form.time.value}: ${form.service.value.toLowerCase()}, мастер — ${form.master.value === 'Любой мастер' ? 'любой свободный' : form.master.value}. Данные никуда не отправлены.`;
+    $('#rdSub').textContent = `${name.value.trim()}, вас ждали бы ${d.toLocaleDateString('ru-RU', { day: 'numeric', month: 'long' })} в ${form.time.value}: ${form.service.value.toLowerCase()}, мастер — ${form.master.value === 'Любой мастер' ? 'любой свободный' : form.master.value}.`;
     seal();
   });
   function seal() {

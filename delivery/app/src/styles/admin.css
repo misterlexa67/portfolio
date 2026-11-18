@@ -158,8 +158,8 @@
 
 .a-login { min-height: 100dvh; display: grid; place-items: center; padding: var(--s-5) var(--gutter); background: var(--c-surface); }
 .a-login__card { width: min(420px, 100%); display: grid; gap: var(--s-4); padding: var(--s-6); background: var(--c-bg); border-radius: var(--r-xl); border: 1px solid var(--c-line); }
-.a-login__demo { display: flex; align-items: center; gap: 8px; padding: 10px 12px; border-radius: var(--r-sm); background: var(--c-warn-tint); font-size: var(--t-sm); color: var(--c-ink-2); }
-.a-login__demo svg { color: var(--c-warn); flex: none; }
+
+.a-login__hint { margin: calc(var(--s-2) * -1) 0 0; font-size: var(--t-xs); color: var(--c-ink-3); }
 .a-login__pin { font-size: 24px; letter-spacing: 0.5em; text-align: center; font-weight: 800; }
 .a-login__back { justify-self: center; }
 

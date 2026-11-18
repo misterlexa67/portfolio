@@ -45,7 +45,7 @@ function OrderDetails({ id, onClose }: { id: string | null; onClose: () => void 
         <div className="a-order">
           <div className="a-order__status"><Pill tone={tone(order.status)}>{STATUS_LABEL[order.status]}</Pill><span className="muted t-sm">{when(order.createdAt)}</span></div>
           <dl className="a-dl">
-            <div><dt>Клиент</dt><dd>{order.customer.own ? 'Вы (демо-клиент)' : order.customer.name}</dd></div>
+            <div><dt>Клиент</dt><dd>{order.customer.own ? 'Вы' : order.customer.name}</dd></div>
             <div><dt>Ресторан</dt><dd>{order.restaurant.name}</dd></div>
             <div><dt>Адрес</dt><dd>{order.address.street} · {order.zone.name}</dd></div>
             <div><dt>Когда</dt><dd>{order.slot.kind === 'asap' ? 'Как можно скорее' : `Ко времени`}</dd></div>
@@ -61,14 +61,14 @@ function OrderDetails({ id, onClose }: { id: string | null; onClose: () => void 
             <div><dt>Доставка</dt><dd className="price">{rub(order.totals.delivery)}</dd></div>
             <div><dt>Сервисный сбор</dt><dd className="price">{rub(order.totals.service)}</dd></div>
             {order.totals.discount > 0 && <div className="breakdown__discount"><dt>Скидка {order.promoCode}</dt><dd className="price">−{rub(order.totals.discount)}</dd></div>}
-            <div className="breakdown__total"><dt>Итого (демо)</dt><dd className="price">{rub(order.totals.total)}</dd></div>
+            <div className="breakdown__total"><dt>Итого</dt><dd className="price">{rub(order.totals.total)}</dd></div>
           </dl>
           {order.rating && <p className="t-sm">Оценка: {'★'.repeat(order.rating.stars)} {order.rating.comment && `— «${order.rating.comment}»`}{order.tip ? ` · чаевые ${rub(order.tip)}` : ''}</p>}
           <h3 className="a-card__title">История</h3>
           <ol className="a-history">{order.history.map((h, i) => <li key={i}><span>{STATUS_LABEL[h.status]}</span><span className="muted num">{when(h.at)}</span></li>)}</ol>
         </div>
       )}
-      <Confirm open={confirm} title="Отменить заказ?" text={order?.customer.own ? 'Сумма вернётся клиенту на демо-баланс.' : 'Клиент увидит, что заказ отменён рестораном.'} confirmLabel="Отменить заказ" cancelLabel="Не отменять" danger
+      <Confirm open={confirm} title="Отменить заказ?" text={order?.customer.own ? 'Сумма вернётся клиенту на баланс.' : 'Клиент увидит, что заказ отменён рестораном.'} confirmLabel="Отменить заказ" cancelLabel="Не отменять" danger
         onConfirm={() => { setConfirm(false); if (order) act(() => api.admin.orders.cancel(order.id), 'Заказ отменён'); }} onClose={() => setConfirm(false)} />
     </Sheet>
   );
@@ -80,7 +80,7 @@ export function OrdersAdmin() {
   const q = useQuery(() => api.admin.orders.list(filter), [filter], ['orders']);
   useEffect(() => { const t = setInterval(q.reload, 3000); return () => clearInterval(t); }, [filter]); // eslint-disable-line react-hooks/exhaustive-deps
   return (
-    <AdminPage title="Заказы" sub="Статусы идут автоматически (ускоренная демо-симуляция). Можно продвинуть или отменить вручную.">
+    <AdminPage title="Заказы" sub="Статусы идут автоматически (ускоренная симуляция). Можно продвинуть или отменить вручную.">
       <div className="tabs no-scrollbar a-filters">
         {FILTERS.map((f) => <button key={String(f.value)} className={`tab${filter === f.value ? ' is-on' : ''}`} onClick={() => setFilter(f.value)}>{f.label}</button>)}
       </div>
@@ -92,7 +92,7 @@ export function OrdersAdmin() {
           {q.data.map((o) => (
             <li key={o.id}>
               <button className="a-list__row a-list__row--btn" onClick={() => setOpen(o.id)}>
-                <span className="a-list__main"><b>№{o.number} · {o.restaurant.name}</b><span className="muted t-sm">{o.customer.own ? 'Вы (демо-клиент)' : o.customer.name} · {o.address.street} · {when(o.createdAt)}</span></span>
+                <span className="a-list__main"><b>№{o.number} · {o.restaurant.name}</b><span className="muted t-sm">{o.customer.own ? 'Вы' : o.customer.name} · {o.address.street} · {when(o.createdAt)}</span></span>
                 <Pill tone={tone(o.status)}>{STATUS_LABEL[o.status]}</Pill>
                 <span className="price a-list__sum">{rub(o.totals.total)}</span>
               </button>

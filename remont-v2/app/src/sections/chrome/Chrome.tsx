@@ -21,15 +21,6 @@ export function Logo({ href = './' }: { href?: string }) {
   );
 }
 
-export function DemoBar() {
-  return (
-    <div className="demobar" role="note">
-      <span className="mono">Демо-концепт, бизнес вымышленный</span>
-      <span className="demobar-sep" aria-hidden="true" />
-      <span className="demobar-hide mono">Заявки и сообщения никуда не отправляются</span>
-    </div>
-  );
-}
 
 const NAV = [
   { id: 'dom', label: 'Ваш дом' },
@@ -135,7 +126,7 @@ export function MessengerButtons({ compact }: { compact?: boolean }) {
       {MESSENGERS.map((m) => (
         <button key={m.id} className="btn btn-s btn-msg" onClick={() => {
           const handle = texts ? (texts.contacts as Record<string, string>)[m.id] : '';
-          toast(<>Демо: здесь откроется чат в {m.label}{handle ? ` (${handle})` : ''}. Ничего не отправляется.</>);
+          toast(<>Здесь откроется чат в {m.label}{handle ? ` (${handle})` : ''}.</>);
         }}>
           <Icon name={m.icon} size={18} /> Написать в {m.label}
         </button>
@@ -172,18 +163,17 @@ export function Footer() {
           <div className="ftr-col">
             <h4 className="mono">Ещё</h4>
             <ul>
-              <li><a className="link" href="./cabinet/">Кабинет клиента (демо)</a></li>
-              <li><a className="link" href="./admin/">Панель владельца (демо)</a></li>
+              <li><a className="link" href="./cabinet/">Кабинет клиента</a></li>
+              <li><a className="link" href="./admin/">Панель владельца</a></li>
               <li><a className="link" href="./privacy/">Политика конфиденциальности</a></li>
             </ul>
           </div>
         </div>
         <MessengerButtons compact />
         <div className="ftr-bottom mono">
-          <span>Демо-концепт, бизнес вымышленный</span>
           <span>Нижний Новгород · {new Date().getFullYear()}</span>
-          <span>Все иллюстрации нарисованы кодом, фото не используются</span>
         </div>
+        <p className="ftr-demo">Демо-концепт сайта для ремонта квартир. Бизнес вымышленный.</p>
       </div>
     </footer>
   );

@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Особняк — барбер-клуб</title>
-<meta name="description" content="Демо-концепт, бизнес вымышленный. «Особняк» — барбер-клуб в Нижнем Новгороде: членство, меню услуг, мастера, запись.">
+<meta name="description" content="«Особняк» — барбер-клуб в Нижнем Новгороде: членство, меню услуг, мастера, запись.">
 <meta name="theme-color" content="#0F2A22">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' fill='%230F2A22'/%3E%3Ccircle cx='32' cy='32' r='24' fill='none' stroke='%23B08D57' stroke-width='2'/%3E%3Cellipse cx='32' cy='32' rx='9' ry='13' fill='none' stroke='%23B08D57' stroke-width='4'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -74,7 +74,6 @@ if(seen||rm||/[?&]noentry/.test(location.search))h.classList.add('entered');})()
   <nav class="hdr-nav" aria-label="Разделы">
     <a href="#membership">Членство</a><a href="#menu">Меню</a><a href="#tryon">Примерочная</a><a href="#masters">Мастера</a><a href="#interior">Интерьер</a>
   </nav>
-  <span class="hdr-demo">Демо-концепт<br>бизнес вымышленный</span>
   <a class="hdr-cta" href="#rsvp">Записаться</a>
   <button class="burger" aria-label="Меню" aria-expanded="false"><i></i><i></i></button>
 </header>
@@ -82,7 +81,6 @@ if(seen||rm||/[?&]noentry/.test(location.search))h.classList.add('entered');})()
   <nav aria-label="Разделы">
     <a href="#club">Клуб</a><a href="#membership">Членство</a><a href="#menu">Меню</a><a href="#tryon">Примерочная</a><a href="#masters">Мастера</a><a href="#shave">Побрей сам</a><a href="#interior">Интерьер</a><a href="#card">Членская карта</a><a href="#rsvp">Запись</a>
   </nav>
-  <p>Демо-концепт, бизнес вымышленный</p>
 </div>
 
 <main>
@@ -172,7 +170,6 @@ if(seen||rm||/[?&]noentry/.test(location.search))h.classList.add('entered');})()
       <li class="dish" data-name="Детская стрижка" data-price="1 600 ₽"><p class="dish-desc">До двенадцати лет, с терпением · 40 минут</p></li>
     </ol>
     <svg class="orn" aria-hidden="true"><use href="#i-orn"/></svg>
-    <p class="menu-foot">Цены вымышленные · демо</p>
   </div>
 </section>
 
@@ -309,7 +306,6 @@ if(seen||rm||/[?&]noentry/.test(location.search))h.classList.add('entered');})()
         <button class="btn foil" type="submit"><span>Напечатать карту</span><svg><use href="#i-arrow"/></svg></button>
         <button class="chip" type="button" id="cardSave" disabled><svg><use href="#i-save"/></svg><span>Сохранить PNG</span></button>
       </div>
-      <p class="card-note">Карта демонстрационная, имя никуда не отправляется.</p>
     </form>
   </div>
   <div class="card-stage" data-gl="card">
@@ -352,14 +348,14 @@ if(seen||rm||/[?&]noentry/.test(location.search))h.classList.add('entered');})()
           <path class="wax-blob" fill="url(#waxG)" d=""/>
           <circle cx="80" cy="80" r="56" fill="#123a2c" stroke="#3c7a62" stroke-width="1.2"/>
           <circle cx="80" cy="80" r="35" fill="none" stroke="#04140e" stroke-width="1"/>
-          <text font-family="Jost" font-size="10.5" letter-spacing="2.2" fill="#c9a76e"><textPath href="#waxRing" startOffset="2%">ЗАЯВКА НЕ ОТПРАВЛЕНА · ЗАЯВКА НЕ ОТПРАВЛЕНА ·</textPath></text>
-          <text x="80" y="88" text-anchor="middle" font-family="Cormorant Garamond" font-weight="600" font-size="25" letter-spacing="2" fill="#c9a76e">ДЕМО</text>
+          <text font-family="Jost" font-size="10.5" letter-spacing="2.2" fill="#c9a76e"><textPath href="#waxRing" startOffset="2%">ЗАЯВКА ПРИНЯТА · ЗАЯВКА ПРИНЯТА · ЗАЯВКА ·</textPath></text>
+          <text x="80" y="88" text-anchor="middle" font-family="Cormorant Garamond" font-weight="600" font-size="25" letter-spacing="2" fill="#c9a76e">О</text>
           <ellipse cx="58" cy="50" rx="18" ry="7" fill="#fff" opacity=".08" transform="rotate(-30 58 50)"/>
         </svg>
       </div>
     </div>
     <div class="rsvp-done" id="rsvpDone" hidden>
-      <p class="rd-title">Это демо, заявка не отправлена.</p>
+      <p class="rd-title">Готово! Так заявка выглядит у владельца</p>
       <p class="rd-sub" id="rdSub"></p>
       <button class="chip dark" id="rsvpAgain"><svg><use href="#i-redo"/></svg><span>Заполнить заново</span></button>
     </div>
@@ -370,7 +366,7 @@ if(seen||rm||/[?&]noentry/.test(location.search))h.classList.add('entered');})()
 <section class="sheet reviews" id="reviews" data-ink="light">
   <div class="rev-head">
     <h2 class="h2">Записки, оставленные гостями</h2>
-    <p class="lead">Их прикалывают к доске у гардероба. Тексты вымышленные, это примеры.</p>
+    <p class="lead">Их прикалывают к доске у гардероба.</p>
   </div>
   <div class="board">
     <figure class="note n1"><i class="pin"></i><blockquote>Впервые за десять лет мастер спросил, как хочу я, а не как модно. Вернусь в пятницу.</blockquote><figcaption>Андрей, член клуба</figcaption><span class="ex">пример</span></figure>
@@ -387,13 +383,12 @@ if(seen||rm||/[?&]noentry/.test(location.search))h.classList.add('entered');})()
   <div class="foot-emboss" aria-hidden="true">О</div>
   <p class="label dark">Оборот приглашения</p>
   <p class="foot-big">Нижний Новгород,<br>Особняков переулок, 1</p>
-  <p class="foot-small">Адрес вымышленный</p>
   <div class="foot-row">
     <dl class="hours"><div><dt>Пн — Сб</dt><dd>10:00 — 22:00</dd></div><div><dt>Вс</dt><dd>11:00 — 20:00</dd></div></dl>
     <p class="foot-tel">+7 (831) 000-00-00</p>
   </div>
   <div class="foot-bottom">
-    <p class="foot-demo">Демо-концепт, бизнес вымышленный</p>
+    <p class="foot-demo">Демо-концепт сайта для барбершопа. Бизнес вымышленный.</p>
     <a href="#top" class="foot-up">Наверх</a>
   </div>
 </footer>

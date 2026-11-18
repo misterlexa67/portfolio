@@ -80,7 +80,6 @@ export function Process() {
       <Modal open={contract} onClose={() => setContract(false)} title="Пример договора" wide>
         <article className="contract">
           <span className="contract-mark" aria-hidden="true">ОБРАЗЕЦ</span>
-          <p className="tag tag-clay">Образец для ознакомления · не является офертой · бизнес вымышленный</p>
           <h4>Договор подряда на ремонт квартиры № ____</h4>
           <p className="muted small">г. Нижний Новгород · «___» ________ 20__ г.</p>
           <p>ООО «Метр» (Подрядчик) и [ФИО заказчика] (Заказчик) заключили договор о нижеследующем.</p>

@@ -94,7 +94,7 @@ export function BeforeAfter({ project, lazy }: { project: Project; lazy?: boolea
         <span className="ba-tag ba-tag-l mono">до</span>
         <span className="ba-tag ba-tag-r mono">после</span>
       </div>
-      <p className="micro muted">Иллюстрация по параметрам объекта — пример, не фото. Потяните за ручку.</p>
+      <p className="micro muted">Потяните за ручку.</p>
     </div>
   );
 }

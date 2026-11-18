@@ -27,9 +27,9 @@ export function SettingsAdmin() {
         <section className="a-card a-form a-settings">
           {error && <p className="a-form__error" role="alert"><Icon name="info" size={16} /> {error}</p>}
           <F label="Сервисный сбор" hint="Добавляется к каждому заказу"><NumInput value={s.serviceFee} onChange={(v) => setS({ ...s, serviceFee: Number(v) })} suffix="₽" /></F>
-          <F label="Стартовый демо-баланс" hint="Получает новый гость и после «Сбросить демо-данные»"><NumInput value={s.startingBalance} onChange={(v) => setS({ ...s, startingBalance: Number(v) })} suffix="₽" /></F>
+          <F label="Стартовый баланс" hint="Получает новый гость и после «Сбросить данные»"><NumInput value={s.startingBalance} onChange={(v) => setS({ ...s, startingBalance: Number(v) })} suffix="₽" /></F>
           <div className="a-field a-field--wide">
-            <span className="field__label">Скорость демо-симуляции заказа</span>
+            <span className="field__label">Скорость обработки заказа</span>
             <Segmented label="Скорость симуляции" value={String(s.demoSpeed)} onChange={(v) => setS({ ...s, demoSpeed: Number(v) })} options={[{ value: '0.5', label: '×0,5' }, { value: '1', label: '×1' }, { value: '2', label: '×2' }, { value: '4', label: '×4' }]} />
             <span className="field__hint">При ×1 путь от оплаты до двери занимает около 70 секунд.</span>
           </div>
@@ -43,11 +43,11 @@ export function SettingsAdmin() {
       <section className="a-card a-danger">
         <div>
           <h2 className="a-card__title">Вернуть исходные данные</h2>
-          <p className="muted t-sm">Каталог, зоны, промокоды, настройки и данные гостя станут как в начале демо.</p>
+          <p className="muted t-sm">Каталог, зоны, промокоды, настройки и данные гостя станут как в начале.</p>
         </div>
         <Button variant="danger" onClick={() => setReset(true)}>Сбросить всё</Button>
       </section>
-      <Confirm open={reset} title="Сбросить все демо-данные?" text="Все изменения в меню, ресторанах и зонах будут потеряны." confirmLabel="Сбросить всё" danger
+      <Confirm open={reset} title="Сбросить все данные?" text="Все изменения в меню, ресторанах и зонах будут потеряны." confirmLabel="Сбросить всё" danger
         onConfirm={async () => { setReset(false); await api.admin.resetEverything(); setS(await api.admin.settings.get()); toast({ text: 'Данные возвращены к исходным', tone: 'success' }); }} onClose={() => setReset(false)} />
     </AdminPage>
   );

@@ -69,7 +69,7 @@ export function Dashboard() {
   const s = stats.data;
   const tiles = s ? [
     { label: 'Заказов сегодня', value: String(s.ordersToday) },
-    { label: 'Выручка, демо ₽', value: rub(s.revenueToday) },
+    { label: 'Выручка, ₽', value: rub(s.revenueToday) },
     { label: 'Средний чек', value: rub(s.averageCheck) },
     { label: 'Активные заказы', value: String(s.activeOrders), accent: s.activeOrders > 0 },
   ] : [];
@@ -104,7 +104,7 @@ export function Dashboard() {
         <ul className="a-list">
           {recent.data?.slice(0, 6).map((o) => (
             <li key={o.id} className="a-list__row">
-              <span className="a-list__main"><b>№{o.number} · {o.restaurant.name}</b><span className="muted t-sm">{o.customer.own ? 'Вы (демо-клиент)' : o.customer.name} · {when(o.createdAt)}</span></span>
+              <span className="a-list__main"><b>№{o.number} · {o.restaurant.name}</b><span className="muted t-sm">{o.customer.own ? 'Вы' : o.customer.name} · {when(o.createdAt)}</span></span>
               <Pill tone={o.status === 'delivered' ? 'success' : o.status === 'cancelled' ? 'danger' : 'accent'}>{STATUS_LABEL[o.status]}</Pill>
               <span className="price a-list__sum">{rub(o.totals.total)}</span>
             </li>

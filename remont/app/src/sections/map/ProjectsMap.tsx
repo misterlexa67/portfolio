@@ -42,7 +42,7 @@ export function ProjectsMap() {
         <div className="sheet-label"><b>Л-06</b><span>Объекты на карте</span><i /><span>{projects ? `${projects.length} примеров` : ''}</span></div>
         <div className="obj-head">
           <h2 id="objects-title" className="display h2 rv">Ремонты <em>рядом с вами</em></h2>
-          <p className="lead rv">Мы не показываем стоковые фото. Вместо них — объекты по районам: тип дома, площадь, срок и итоговая цена. Все объекты помечены как пример.</p>
+          <p className="lead rv">Объекты по районам: тип дома, площадь, срок и итоговая цена.</p>
         </div>
 
         <div className="obj-filters">
@@ -63,7 +63,7 @@ export function ProjectsMap() {
         <div className="obj-grid">
           <div className="obj-map">
             <MapNN projects={filtered} district={district} activeId={active?.id ?? null} onPick={pick} onDistrict={(d) => { setDistrict(d); setActiveId(null); }} counts={counts} />
-            <span className="obj-legend mono"><span className="dot" /> пример объекта · схема, не в масштабе</span>
+            <span className="obj-legend mono"><span className="dot" /> схема, не в масштабе</span>
           </div>
 
           <div className="obj-card" ref={cardRef} aria-live="polite">
@@ -82,7 +82,6 @@ export function ProjectsMap() {
             {active && (
               <article className="pc" key={active.id}>
                 <header className="pc-head">
-                  <span className="tag tag-clay">пример</span>
                   <span className="mono pc-where">{districtName(active.district)} · {active.street}</span>
                 </header>
                 <h3 className="pc-title display">{active.title}</h3>

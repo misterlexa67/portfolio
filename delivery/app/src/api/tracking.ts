@@ -28,7 +28,7 @@ export const ACTIVE: OrderStatus[] = ['created', 'paid_demo', 'cooking', 'picked
 
 export const STATUS_LABEL: Record<OrderStatus, string> = {
   created: 'Заказ создан',
-  paid_demo: 'Оплачен демо-балансом',
+  paid_demo: 'Оплачен балансом',
   cooking: 'Ресторан готовит',
   picked_up: 'Курьер забрал заказ',
   on_the_way: 'Курьер в пути',

@@ -79,7 +79,7 @@ function placeInDb(db: DB, input: PlaceOrderInput): PlaceResult {
   // 5. Баланс
   const total = q.totals.total;
   if (db.wallet.balance < total) {
-    return fail(new ApiError('insufficient_funds', 'На демо-балансе не хватает средств', { need: total, balance: db.wallet.balance, missing: total - db.wallet.balance }));
+    return fail(new ApiError('insufficient_funds', 'На балансе не хватает средств', { need: total, balance: db.wallet.balance, missing: total - db.wallet.balance }));
   }
 
   // 6. Атомарно: списание + создание заказа + очистка корзины
@@ -211,7 +211,7 @@ export const orders = {
       if (o.tip > 0) throw new ApiError('conflict', 'Вы уже поблагодарили курьера за этот заказ');
       const a = Math.floor(amount);
       if (!(a > 0 && a <= 1000)) throw new ApiError('invalid', 'Сумма чаевых — от 1 до 1 000 ₽');
-      if (db.wallet.balance < a) throw new ApiError('insufficient_funds', 'На демо-балансе не хватает средств на чаевые', { need: a, balance: db.wallet.balance, missing: a - db.wallet.balance });
+      if (db.wallet.balance < a) throw new ApiError('insufficient_funds', 'На балансе не хватает средств на чаевые', { need: a, balance: db.wallet.balance, missing: a - db.wallet.balance });
       db.wallet.balance -= a;
       db.wallet.transactions.unshift({ id: newId('txn'), kind: 'tip', amount: -a, at: now(), title: `Чаевые курьеру ${o.courier.name} · №${o.number}`, orderId: o.id });
       o.tip = a;

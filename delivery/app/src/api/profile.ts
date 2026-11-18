@@ -16,7 +16,7 @@ export const wallet = {
       const a = Math.floor(amount);
       if (!(a >= 100 && a <= 50000)) throw new ApiError('invalid', 'Пополнить можно на сумму от 100 до 50 000 ₽');
       db.wallet.balance += a;
-      db.wallet.transactions.unshift({ id: newId('txn'), kind: 'topup', amount: a, at: now(), title: 'Пополнение демо-баланса' });
+      db.wallet.transactions.unshift({ id: newId('txn'), kind: 'topup', amount: a, at: now(), title: 'Пополнение баланса' });
       return db.wallet;
     }));
   },

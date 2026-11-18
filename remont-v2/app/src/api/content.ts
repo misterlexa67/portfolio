@@ -113,7 +113,7 @@ export const auth = {
   /** Демо-авторизация: PIN 0000. Настоящей защиты нет — это помечено в интерфейсе. */
   adminLogin(pin: string): Promise<void> {
     return call(() => {
-      if (pin !== '0000') throw new ApiError('pin', 'Неверный PIN. В демо это 0000');
+      if (pin !== '0000') throw new ApiError('pin', 'Неверный PIN');
       write('session', { ...read('session'), admin: true });
     }, [300, 500]);
   },

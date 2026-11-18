@@ -26,7 +26,6 @@ export function BeforeAfter({ project }: { project: Project }) {
           aria-label="Сравнить до и после"
         />
       </div>
-      <p className="micro muted">Иллюстрация, нарисованная по параметрам объекта. Это пример, не фото.</p>
     </div>
   );
 }

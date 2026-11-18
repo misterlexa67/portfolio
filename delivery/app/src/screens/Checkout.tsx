@@ -52,7 +52,7 @@ export function Checkout() {
     try {
       const order = await api.orders.place({ idempotencyKey: key.current, addressId: address.id, slot });
       done.current = true;
-      toast({ text: `Заказ №${order.number} оплачен демо-балансом`, tone: 'success' });
+      toast({ text: `Заказ №${order.number} оплачен балансом`, tone: 'success' });
       navigate(`/order/${order.id}`, { replace: true });
     } catch (e) {
       const err = toFriendly(e);
@@ -126,13 +126,13 @@ export function Checkout() {
             <div className="co-card co-pay" role="radiogroup" aria-label="Способ оплаты">
               <div className="co-pay__row" role="radio" aria-checked="true">
                 <span className="co-pay__icon"><Icon name="wallet" size={22} /></span>
-                <span className="co-pay__text"><b>Демо-баланс</b><span>Доступно <span className="price">{rub(balance)}</span></span></span>
+                <span className="co-pay__text"><b>Баланс</b><span>Доступно <span className="price">{rub(balance)}</span></span></span>
                 <span className="co-pay__radio is-on" aria-hidden="true" />
               </div>
             </div>
             {short > 0 && (
-              <Note tone="danger" icon="wallet" action={<Button size="sm" onClick={() => openTopUp(short)}>Пополнить демо-баланс</Button>}>
-                Не хватает <b className="price">{rub(short)}</b>. Пополните демо-баланс — это мгновенно и бесплатно.
+              <Note tone="danger" icon="wallet" action={<Button size="sm" onClick={() => openTopUp(short)}>Пополнить баланс</Button>}>
+                Не хватает <b className="price">{rub(short)}</b>. Пополните баланс — это мгновенно и бесплатно.
               </Note>
             )}
           </section>
@@ -163,7 +163,6 @@ export function Checkout() {
               <Button size="lg" block loading={submitting} disabled={!canPay} onClick={pay}>
                 Оплатить <Money value={total} />
               </Button>
-              <p className="co-demo"><Icon name="info" size={14} /> Демо: заказ не отправляется в настоящий ресторан, списываются только демо-деньги.</p>
             </div>
           </section>
         </aside>

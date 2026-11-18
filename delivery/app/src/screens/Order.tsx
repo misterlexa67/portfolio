@@ -120,7 +120,7 @@ function RateBlock({ order }: { order: Order }) {
       <label htmlFor="rate-comment" className="sr-only">Комментарий</label>
       <textarea id="rate-comment" className="input input--area" rows={2} maxLength={500} placeholder="Что понравилось или что улучшить? (необязательно)" value={comment} onChange={(e) => setComment(e.target.value)} />
       <div className="tips">
-        <p className="tips__title">Чаевые курьеру {order.courier.name}<span className="muted"> · с демо-баланса</span></p>
+        <p className="tips__title">Чаевые курьеру {order.courier.name}<span className="muted"> · с баланса</span></p>
         <div className="choice-row">
           {[50, 100, 150].map((a) => (
             <button key={a} className={`choice${tip === a ? ' is-on' : ''}`} aria-pressed={tip === a} onClick={() => setTip(tip === a ? null : a)} disabled={(wallet?.balance ?? 0) < a && tip !== a}>
@@ -182,7 +182,7 @@ export function OrderScreen() {
     setCancelling(true);
     try {
       await api.orders.cancel(order.id);
-      toast({ text: `Заказ отменён, ${rub(order.totals.total)} вернулись на демо-баланс`, tone: 'success' });
+      toast({ text: `Заказ отменён, ${rub(order.totals.total)} вернулись на баланс`, tone: 'success' });
       setData(await api.orders.get(order.id));
     } catch (e) { toast({ text: toFriendly(e).message, tone: 'danger' }); } finally { setCancelling(false); }
   };
@@ -190,7 +190,6 @@ export function OrderScreen() {
   return (
     <div className="screen order">
       <PageHeader title={order ? `Заказ №${order.number}` : 'Заказ'} sub={order ? `${order.restaurant.name} · ${when(order.createdAt)}` : undefined} />
-      <div className="demo-strip"><Icon name="info" size={15} /> Демо: заказ не отправлен в реальный ресторан</div>
 
       <div className="container order__grid">
         <div className="order__map">
@@ -217,7 +216,7 @@ export function OrderScreen() {
                   <div>
                     <h2 className="h2">{HEADLINE[order.status]}</h2>
                     <p className="status-card__sub">
-                      {order.status === 'cancelled' && (order.refunded ? `Деньги вернулись на демо-баланс: ${rub(order.totals.total)}` : 'Заказ отменён')}
+                      {order.status === 'cancelled' && (order.refunded ? `Деньги вернулись на баланс: ${rub(order.totals.total)}` : 'Заказ отменён')}
                       {order.status === 'delivered' && `Приятного аппетита! Доставили ${when(order.history[order.history.length - 1].at)}`}
                       {tracking.startsAt && `Запланирован к ${hm((order.slot as { at: number }).at)} — начнём готовить в ${hm(tracking.startsAt)}`}
                       {!tracking.startsAt && tracking.minutesLeft !== null && order.status !== 'at_door' && `Будет через ${tracking.minutesLeft} ${plural(tracking.minutesLeft, 'минуту', 'минуты', 'минут')} · около ${arrival ? hm(arrival) : ''}`}
@@ -231,7 +230,6 @@ export function OrderScreen() {
                   )}
                 </div>
                 {order.status !== 'cancelled' && <Steps status={order.status} />}
-                {tracking.minutesLeft !== null && <p className="status-card__demo">Демо-время ускорено: весь путь займёт около минуты</p>}
                 {['created', 'paid_demo'].includes(order.status) && (
                   <Button variant="quiet" size="sm" loading={cancelling} onClick={cancel}>Отменить заказ</Button>
                 )}
@@ -246,8 +244,8 @@ export function OrderScreen() {
                 <b>{order.courier.name}</b>
                 <span className="num">{order.courier.vehicle} · <Icon name="star" size={12} filled /> {order.courier.rating.toFixed(2).replace('.', ',')}</span>
               </div>
-              <button className="round-btn" aria-label="Позвонить курьеру" onClick={() => toast({ text: 'Демо: звонок курьеру недоступен', icon: 'phone' })}><Icon name="phone" size={19} /></button>
-              <button className="round-btn" aria-label="Написать курьеру" onClick={() => toast({ text: 'Демо: чат с курьером недоступен', icon: 'chat' })}><Icon name="chat" size={19} /></button>
+              <button className="round-btn" aria-label="Позвонить курьеру" onClick={() => toast({ text: 'Звонок курьеру пока недоступен', icon: 'phone' })}><Icon name="phone" size={19} /></button>
+              <button className="round-btn" aria-label="Написать курьеру" onClick={() => toast({ text: 'Чат с курьером пока недоступен', icon: 'chat' })}><Icon name="chat" size={19} /></button>
             </section>
           )}
 
@@ -271,7 +269,7 @@ export function OrderScreen() {
                 <div><dt>Доставка · {order.zone.name}</dt><dd className="price">{order.totals.delivery ? rub(order.totals.delivery) : 'Бесплатно'}</dd></div>
                 <div><dt>Сервисный сбор</dt><dd className="price">{rub(order.totals.service)}</dd></div>
                 {order.totals.discount > 0 && <div className="breakdown__discount"><dt>Скидка · {order.promoCode}</dt><dd className="price">−{rub(order.totals.discount)}</dd></div>}
-                <div className="breakdown__total"><dt>Оплачено демо-балансом</dt><dd className="price">{rub(order.totals.total)}</dd></div>
+                <div className="breakdown__total"><dt>Оплачено балансом</dt><dd className="price">{rub(order.totals.total)}</dd></div>
               </dl>
               {order.status !== 'delivered' && order.status !== 'cancelled' ? null : (
                 <Button variant="secondary" icon="refresh" block onClick={() => repeatOrder(order.id)}>Повторить заказ</Button>

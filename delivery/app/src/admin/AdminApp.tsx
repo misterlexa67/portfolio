@@ -38,11 +38,11 @@ function Login({ onOk }: { onOk: () => void }) {
         <Wordmark to="/" />
         <h1 className="h2">Панель владельца</h1>
         <p className="muted">Управление ресторанами, меню, зонами и заказами без программиста.</p>
-        <div className="a-login__demo"><Icon name="info" size={16} /> Демо-доступ: PIN <b>0000</b>. Настоящей авторизации нет.</div>
         <label className="field">
           <span className="field__label">PIN-код</span>
           <input className="input a-login__pin" type="password" inputMode="numeric" autoComplete="one-time-code" maxLength={8} value={pin} onChange={(e) => setPin(e.target.value.replace(/\D/g, ''))} autoFocus aria-invalid={!!error} />
         </label>
+        <p className="a-login__hint">PIN: 0000</p>
         {error && <p className="field__error" role="alert">{error}</p>}
         <Button size="lg" block loading={busy} disabled={pin.length < 4}>Войти</Button>
         <NavLink to="/" className="link link--muted a-login__back">← Вернуться в приложение</NavLink>
@@ -60,7 +60,7 @@ export default function AdminApp() {
       <aside className="a-side">
         <div className="a-side__brand">
           <Wordmark to="/admin" />
-          <span className="a-side__tag">владелец · демо</span>
+          <span className="a-side__tag">владелец</span>
         </div>
         <nav className="a-nav no-scrollbar" aria-label="Разделы панели">
           {NAV.map((n) => (
@@ -75,7 +75,6 @@ export default function AdminApp() {
         </div>
       </aside>
       <main className="a-main">
-        <div className="a-demo"><Icon name="info" size={15} /> Демо-панель: изменения сохраняются в этом браузере и сразу видны в приложении.</div>
         <Routes>
           <Route index element={<Dashboard />} />
           <Route path="orders" element={<OrdersAdmin />} />

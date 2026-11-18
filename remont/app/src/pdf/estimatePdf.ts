@@ -78,7 +78,7 @@ export async function downloadEstimatePdf(e: Estimate, plan: FloorPlan, texts: S
   doc.addFileToVFS('plex-400.ttf', reg); doc.addFont('plex-400.ttf', 'Plex', 'normal');
   doc.addFileToVFS('plex-600.ttf', semi); doc.addFont('plex-600.ttf', 'Plex', 'bold');
   doc.addFileToVFS('serif-400.ttf', serif); doc.addFont('serif-400.ttf', 'Serif', 'normal');
-  doc.setProperties({ title: `Смета ${estimateNumber(e)} — Метр`, author: 'Метр (демо)', subject: 'Смета на ремонт квартиры' });
+  doc.setProperties({ title: `Смета ${estimateNumber(e)} — Метр`, author: 'Метр', subject: 'Смета на ремонт квартиры' });
 
   const p = e.params;
   const L = 18; const R = 192; const W = R - L;
@@ -90,7 +90,6 @@ export async function downloadEstimatePdf(e: Estimate, plan: FloorPlan, texts: S
   // шапка
   set(30, INK, 'Serif'); doc.text('Метр', L, 26);
   set(8, MUTE); doc.text('РЕМОНТ КВАРТИР · НИЖНИЙ НОВГОРОД', L, 32);
-  set(8, CLAY); doc.text('ДЕМО-КОНЦЕПТ, БИЗНЕС ВЫМЫШЛЕННЫЙ', R, 20, { align: 'right' });
   set(9, SOFT);
   doc.text(`Смета ${estimateNumber(e)}`, R, 26, { align: 'right' });
   doc.text(new Date(e.createdAt).toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' }), R, 31, { align: 'right' });
@@ -163,7 +162,7 @@ export async function downloadEstimatePdf(e: Estimate, plan: FloorPlan, texts: S
     set(7.5, MUTE);
     const c = texts?.contacts;
     doc.text(c ? `${c.phone} · ${c.email} · ${c.hours}` : 'Метр', L, 286);
-    doc.text('Демо-концепт, бизнес вымышленный. Документ сформирован в браузере.', R, 286, { align: 'right' });
+    doc.text('Документ сформирован в браузере.', R, 286, { align: 'right' });
   };
 
   // платежи

@@ -12,7 +12,6 @@ function ProjectCard({ p, onWant, lazy }: { p: Project; onWant: (p: Project) => 
   return (
     <article className="pc">
       <header className="pc-head">
-        <span className="tag tag-clay">пример</span>
         <span className="mono pc-where">{districtName(p.district)} · {p.street}</span>
       </header>
       <h3 className="pc-title display">{p.title}</h3>
@@ -84,7 +83,7 @@ export function ProjectsMap() {
         <div className="sheet-label"><b>Л-06</b><span>Объекты на карте</span><i /><span>{projects ? `${projects.length} примеров` : ''}</span></div>
         <div className="obj-head">
           <h2 id="objects-title" className="display h2 rv">Ремонты <em>рядом с вами</em></h2>
-          <p className="lead rv">Мы не показываем стоковые фото. Вместо них — объекты по районам: тип дома, площадь, срок и итоговая цена. Все объекты помечены как пример.</p>
+          <p className="lead rv">Объекты по районам: тип дома, площадь, срок и итоговая цена.</p>
         </div>
 
         <div className="obj-filters">
@@ -101,7 +100,7 @@ export function ProjectsMap() {
         <div className="obj-grid">
           <div className="obj-map" ref={mapRef}>
             <MapNN projects={projects ?? []} visible={visible} entered={mapIn} district={district} activeId={active?.id ?? null} onPick={pick} onDistrict={(d) => { setDistrict(d); setActiveId(null); }} counts={counts} />
-            <span className="obj-legend mono"><span className="dot" /> пример объекта · схема, не в масштабе</span>
+            <span className="obj-legend mono"><span className="dot" /> схема, не в масштабе</span>
           </div>
 
           <div className="obj-card" aria-live="polite">

@@ -73,7 +73,7 @@ export function MapNN({ projects, district, activeId, onPick, onDistrict, counts
         return (
           <g
             key={p.id} className={`pin${on ? ' on' : ''}`} transform={`translate(${p.x} ${p.y})`}
-            role="button" tabIndex={0} aria-pressed={on} aria-label={`${p.title}, ${NAMES[p.district]} район, пример`}
+            role="button" tabIndex={0} aria-pressed={on} aria-label={`${p.title}, ${NAMES[p.district]} район`}
             onClick={() => onPick(p)}
             onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onPick(p); } }}
           >

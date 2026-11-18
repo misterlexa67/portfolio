@@ -44,7 +44,7 @@ export async function initCard({ host, mobile, onWeak }) {
     g.fillStyle = T.base; g.fillRect(0, 0, 600, 378);
     g.strokeStyle = T.foil; g.lineWidth = 2; g.strokeRect(20, 20, 560, 338);
     g.fillStyle = T.foil; g.textAlign = 'center'; g.font = '600 120px "Cormorant Garamond"'; g.fillText('О', 300, 230);
-    g.font = '500 13px "Jost"'; g.fillText('ПРЕДЪЯВИТЕЛЬ — ЧЛЕН КЛУБА «ОСОБНЯК» · ДЕМО', 300, 320);
+    g.font = '500 13px "Jost"'; g.fillText('ПРЕДЪЯВИТЕЛЬ — ЧЛЕН КЛУБА «ОСОБНЯК»', 300, 320);
     backT.needsUpdate = true;
   }
   function repaint(quick) {

@@ -16,10 +16,9 @@ export function Wordmark({ to = '/' }: { to?: string }) {
 export function BalancePill() {
   const { wallet, openTopUp } = useStore();
   return (
-    <button className="balance" onClick={() => openTopUp()} aria-label={`Демо-баланс ${rub(wallet?.balance ?? 0)}. Пополнить`}>
+    <button className="balance" onClick={() => openTopUp()} aria-label={`Баланс ${rub(wallet?.balance ?? 0)}. Пополнить`}>
       <Icon name="wallet" size={18} />
       <span className="balance__value">{wallet ? <Money value={wallet.balance} /> : '—'}</span>
-      <span className="balance__tag">демо</span>
     </button>
   );
 }
@@ -131,8 +130,8 @@ export function ActiveOrderBar() {
 export function DemoFooter() {
   return (
     <footer className="demo-footer container">
-      <p>Демо-концепт, сервис вымышленный. Рестораны, курьеры и цены придуманы, деньги — демо-баланс.</p>
-      <Link to="/admin" className="demo-footer__link"><Icon name="lock" size={14} /> Панель владельца (демо)</Link>
+      <p>Демо-концепт сайта для доставки еды. Бизнес вымышленный.</p>
+      <Link to="/admin" className="demo-footer__link"><Icon name="lock" size={14} /> Панель владельца</Link>
     </footer>
   );
 }

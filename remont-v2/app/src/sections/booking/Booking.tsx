@@ -147,7 +147,6 @@ export function Booking() {
             <div className="bk-done" role="status">
               <h2 id="zamer-title" className="display h2">Замер <em>отменён</em></h2>
               <p className="lead">Слот освободился — его уже видят другие. Если передумаете, запишитесь снова в удобное время.</p>
-              <p className="bk-demo"><Icon name="info" size={18} /> Демо: ничего не отправлено. В панели владельца заявка помечена «Отказ» с заметкой.</p>
               <button className="btn btn-primary" onClick={() => { setDone(null); setMode('view'); setTime(null); setDate(null); }}>Записаться снова</button>
             </div>
           ) : (
@@ -160,11 +159,11 @@ export function Booking() {
                 <span className="bk-when-t num">{s.time}</span>
               </h2>
               <p className="lead">{dayWord(s.date).charAt(0).toUpperCase() + dayWord(s.date).slice(1)}, {parseDate(s.date).toLocaleDateString('ru-RU', { weekday: 'long' })}. Инженер приедет к {s.time} и позвонит за час.</p>
-              <p className="bk-demo"><Icon name="info" size={18} /> Демо: заявка не отправлена. Она появилась в панели владельца, а слот стал недоступен.</p>
+              <p className="bk-demo"><Icon name="info" size={18} /> Готово! Так заявка выглядит у владельца</p>
 
               {mode === 'view' && (
                 <div className="bk-done-act">
-                  <button className="btn btn-primary" onClick={() => downloadIcs({ date: s.date, time: s.time, title: 'Замер квартиры — Метр', description: `Бесплатный замер. Заявка №${done.lead.number}. Подготовьте план БТИ и пожелания по комнатам. Демо-концепт.`, location: 'Нижний Новгород' })}>
+                  <button className="btn btn-primary" onClick={() => downloadIcs({ date: s.date, time: s.time, title: 'Замер квартиры — Метр', description: `Бесплатный замер. Заявка №${done.lead.number}. Подготовьте план БТИ и пожелания по комнатам.`, location: 'Нижний Новгород' })}>
                     <Icon name="calendar" size={18} /> Добавить в календарь
                   </button>
                   <button className="btn btn-ghost" onClick={() => { setMode('move'); setDate(s.date); setTime(null); setSlotErr(null); }}>Перенести</button>
@@ -279,7 +278,6 @@ export function Booking() {
             <button className="btn btn-primary btn-block bk-submit" disabled={busy}>
               {busy ? <><Spinner /> Записываем…</> : <>Записаться на замер{date && time ? ` — ${dayWord(date)}, ${time}` : ''}</>}
             </button>
-            <p className="micro muted">Демо: заявка не отправляется. Она появится в панели владельца, а выбранный слот станет занятым.</p>
           </form>
         </div>
       </div>

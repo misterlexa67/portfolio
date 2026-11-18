@@ -32,7 +32,7 @@ export const SEED_TEXTS: SiteTexts = {
   contacts: {
     phone: '+7 (831) 555-01-01',
     email: 'hello@metr.demo',
-    address: 'Студия на Ильинской (адрес вымышленный)',
+    address: 'Студия на Ильинской',
     hours: 'Пн–Сб, 9:00–20:00',
     telegram: '@metr_nn_demo',
     max: 'metr_nn_demo',
@@ -106,7 +106,7 @@ export function seedCabinet(now: Date): CabinetClient {
   const total = 1486000;
   return {
     clientName: 'Анна Сергеевна',
-    address: 'ул. Ларина, 14 — кв. 37 (адрес вымышленный)',
+    address: 'ул. Ларина, 14 — кв. 37',
     district: 'priroksky',
     house: 'brezhnevka',
     rooms: 2,

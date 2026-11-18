@@ -16,7 +16,6 @@ export function CabinetApp() {
 
   return (
     <>
-      <div className="demobar" role="note"><span className="mono">Демо-концепт, бизнес вымышленный · кабинет с вымышленным клиентом</span></div>
       <header className="cab-hdr">
         <div className="wrap cab-hdr-in">
           <Logo href="../" />
@@ -37,9 +36,9 @@ function Login({ busy, onLogin }: { busy: boolean; onLogin: () => void }) {
         <h1 className="display">Ваш ремонт — <em>каждый день</em> на экране</h1>
         <p className="lead">Этап, фото от прораба, график и платежи. Больше не нужно звонить и спрашивать «как там ремонт?».</p>
         <button className="btn btn-primary btn-block" onClick={onLogin} disabled={busy}>
-          {busy ? <Spinner /> : <Icon name="user" size={18} />} Войти как клиент (демо)
+          {busy ? <Spinner /> : <Icon name="user" size={18} />} Войти как клиент
         </button>
-        <p className="small muted">Демо-вход без пароля. Вы увидите вымышленный ремонт двушки в брежневке на этапе чистовых работ.</p>
+        <p className="small muted">Вход без пароля. Вы увидите ремонт двушки в брежневке на этапе чистовых работ.</p>
         <a className="link small" href="../">← Вернуться на сайт</a>
       </div>
     </section>
@@ -127,7 +126,7 @@ function Dashboard() {
       </div>
 
       <section className="cab-photos" aria-labelledby="ph-t">
-        <div className="cab-sec-head"><h3 id="ph-t" className="cab-h3">Фотоотчёт</h3><span className="small muted">иллюстрации вместо фото — это демо</span></div>
+        <div className="cab-sec-head"><h3 id="ph-t" className="cab-h3">Фотоотчёт</h3></div>
         <ul className="ph-feed">
           {[...c.photos].reverse().map((p) => (
             <li key={p.id}>
@@ -145,7 +144,7 @@ function Dashboard() {
           <h3 id="chat-t" className="cab-h3">Сообщения от команды</h3>
           <div className="chat-act">
             <a className="btn btn-s btn-quiet" href={telHref(c.foreman.phone)}><Icon name="phone" size={16} /> Позвонить прорабу</a>
-            <button className="btn btn-s btn-quiet" onClick={() => toast('Демо: здесь откроется чат с прорабом. Ничего не отправляется.')}><Icon name="chat" size={16} /> Написать</button>
+            <button className="btn btn-s btn-quiet" onClick={() => toast('Здесь откроется чат с прорабом.')}><Icon name="chat" size={16} /> Написать</button>
           </div>
         </div>
         <ol className="chat">
@@ -167,7 +166,7 @@ function Dashboard() {
       </section>
 
       <Modal open={!!photo} onClose={() => setPhoto(null)} title={photo?.caption} wide>
-        {photo && <div className="ph-big"><StagePhoto scene={photo.scene} title={photo.caption} /><p className="small muted">{dateLong(photo.date)} · {c.stages.find((x) => x.id === photo.stageId)?.title} · иллюстрация</p></div>}
+        {photo && <div className="ph-big"><StagePhoto scene={photo.scene} title={photo.caption} /><p className="small muted">{dateLong(photo.date)} · {c.stages.find((x) => x.id === photo.stageId)?.title}</p></div>}
       </Modal>
     </div>
   );

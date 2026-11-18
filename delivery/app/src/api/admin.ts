@@ -76,7 +76,7 @@ export const admin = {
   login(pin: string): Promise<void> {
     return call(() => {
       const ok = read((db) => db.settings.adminPin) === pin.trim();
-      if (!ok) throw new ApiError('unauthorized', 'Неверный PIN. В демо-версии это 0000');
+      if (!ok) throw new ApiError('unauthorized', 'Неверный PIN');
       session.set(SESSION_KEY, 'ok');
     }, { safe: true });
   },
@@ -420,7 +420,7 @@ export const admin = {
         ensure();
         return write(['settings', 'cart', 'catalog'], (db) => {
           db.settings.serviceFee = int(input.serviceFee, 'Сервисный сбор, ₽', 0, 500);
-          db.settings.startingBalance = int(input.startingBalance, 'Стартовый демо-баланс, ₽', 0, 100000);
+          db.settings.startingBalance = int(input.startingBalance, 'Стартовый баланс, ₽', 0, 100000);
           db.settings.demoSpeed = [0.5, 1, 2, 4].includes(input.demoSpeed) ? input.demoSpeed : 1;
           db.settings.simulateErrors = !!input.simulateErrors;
           return db.settings;

@@ -80,7 +80,7 @@ export function MapNN({ projects, district, activeId, onPick, onDistrict, counts
             <g
               className={`pin${on ? ' on' : ''}${shown ? '' : ' pin-off'}`}
               style={{ '--pd': `${i * 45}ms` } as React.CSSProperties}
-              role="button" tabIndex={shown ? 0 : -1} aria-hidden={!shown || undefined} aria-pressed={on} aria-label={`${p.title}, ${NAMES[p.district]} район, пример`}
+              role="button" tabIndex={shown ? 0 : -1} aria-hidden={!shown || undefined} aria-pressed={on} aria-label={`${p.title}, ${NAMES[p.district]} район`}
               onClick={() => shown && onPick(p)}
               onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onPick(p); } }}
             >

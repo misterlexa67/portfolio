@@ -177,7 +177,7 @@ function TelegramModal({ open, onClose, source }: { open: boolean; onClose: () =
     <Modal open={open} onClose={close} title={lead ? 'Так выглядело бы сообщение' : 'Прислать смету в Telegram'}>
       {!lead ? (
         <form className="tg-form" onSubmit={submit} noValidate>
-          <p className="small muted">Пришлём смету и PDF в Telegram на ваш номер. <b>Демо: ничего не отправляется</b> — вы увидите сообщение, а заявка появится в панели владельца.</p>
+          <p className="small muted">Пришлём смету и PDF в Telegram на ваш номер. Вы увидите сообщение, а заявка появится в панели владельца.</p>
           <label className="field"><span>Как к вам обращаться</span>
             <input className="input" value={name} onChange={(e) => setName(e.target.value)} autoComplete="given-name" aria-invalid={err?.field === 'name' || undefined} data-autofocus />
           </label>
@@ -198,7 +198,7 @@ function TelegramModal({ open, onClose, source }: { open: boolean; onClose: () =
             <pre>{estimate ? api.estimates.telegramMessage(estimate) : ''}</pre>
             <span className="tg-file"><Icon name="doc" size={18} /> Смета.pdf</span>
           </div>
-          <p className="tg-demo"><Icon name="info" size={16} /> Демо: сообщение не отправлено. Заявка №{lead.number} создана в панели владельца.</p>
+          <p className="tg-demo"><Icon name="info" size={16} /> Готово! Так заявка выглядит у владельца. Заявка №{lead.number} создана.</p>
           <button className="btn btn-quiet btn-block" onClick={close}>Понятно</button>
         </div>
       )}

@@ -116,7 +116,7 @@ export function createSeed(): DB {
     profile: clone(seed.PROFILE),
     wallet: {
       balance: seed.SETTINGS.startingBalance,
-      transactions: [{ id: 'txn-welcome', kind: 'welcome', amount: seed.SETTINGS.startingBalance, at: t, title: 'Приветственный демо-баланс' }],
+      transactions: [{ id: 'txn-welcome', kind: 'welcome', amount: seed.SETTINGS.startingBalance, at: t, title: 'Приветственный баланс' }],
     },
     cart: emptyCart(),
     orders: [],
@@ -185,7 +185,7 @@ export function resetAll(scope: 'user' | 'all' = 'user'): void {
     fresh.orderSeq = cur.orderSeq;
     fresh.orders = cur.orders.filter((o) => !o.customer.own);
     const start = cur.settings.startingBalance;
-    fresh.wallet = { balance: start, transactions: [{ id: newId('txn'), kind: 'welcome', amount: start, at: now(), title: 'Приветственный демо-баланс' }] };
+    fresh.wallet = { balance: start, transactions: [{ id: newId('txn'), kind: 'welcome', amount: start, at: now(), title: 'Приветственный баланс' }] };
   }
   memory = fresh;
   persist(memory);

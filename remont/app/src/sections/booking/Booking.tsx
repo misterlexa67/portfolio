@@ -81,9 +81,9 @@ export function Booking() {
             <span className="bk-check"><Icon name="check" size={34} /></span>
             <h2 id="zamer-title" className="display h2">Записали на <em>{dayWord(s.date)}, {s.time}</em></h2>
             <p className="lead">{done.lead.name}, инженер приедет {dateLong(s.date)} в {s.time}. Заявка №{done.lead.number}.</p>
-            <p className="bk-demo"><Icon name="info" size={18} /> Демо: заявка не отправлена. Она появилась в панели владельца, а слот стал недоступен.</p>
+            <p className="bk-demo"><Icon name="info" size={18} /> Готово! Так заявка выглядит у владельца</p>
             <div className="bk-done-act">
-              <button className="btn btn-primary" onClick={() => downloadIcs({ date: s.date, time: s.time, title: 'Замер квартиры — Метр', description: `Бесплатный замер. Заявка №${done.lead.number}. Демо-концепт.`, location: 'Нижний Новгород' })}>
+              <button className="btn btn-primary" onClick={() => downloadIcs({ date: s.date, time: s.time, title: 'Замер квартиры — Метр', description: `Бесплатный замер. Заявка №${done.lead.number}.`, location: 'Нижний Новгород' })}>
                 <Icon name="calendar" size={18} /> Добавить в календарь
               </button>
               <button className="btn btn-quiet" onClick={() => { setDone(null); setTime(null); setDate(null); }}>Записать ещё одну квартиру</button>
@@ -194,7 +194,6 @@ export function Booking() {
             <button className="btn btn-primary btn-block bk-submit" disabled={busy}>
               {busy ? <><Spinner /> Записываем…</> : <>Записаться на замер{date && time ? ` — ${dayWord(date)}, ${time}` : ''}</>}
             </button>
-            <p className="micro muted">Демо: заявка не отправляется. Она появится в панели владельца, а выбранный слот станет занятым.</p>
           </form>
         </div>
       </div>

@@ -6,7 +6,7 @@ import { IsoDefs } from '../components/iso/materials';
 import { ToastProvider } from '../components/ui';
 import { initReveals } from '../lib/motion';
 import { CalcProvider, scrollToId } from '../state/calc';
-import { ContinueBanner, DemoBar, Footer, Header, StickyBar } from '../sections/chrome/Chrome';
+import { ContinueBanner, Footer, Header, StickyBar } from '../sections/chrome/Chrome';
 import { Hero } from '../sections/hero/Hero';
 import { HousePicker } from '../sections/house/HousePicker';
 import { Calculator } from '../sections/calc/Calculator';
@@ -30,7 +30,6 @@ function Landing() {
     <>
       <IsoDefs />
       <a className="vh" href="#calc">Перейти к калькулятору</a>
-      <DemoBar />
       <Header />
       <main>
         <Hero />

@@ -39,7 +39,7 @@ function LeadList({ go }: { go: (r: string) => void }) {
     toast('CSV выгружен — откроется в Excel', 'ok');
   };
   const clear = async () => {
-    if (!window.confirm('Удалить все заявки и записи на замер? Это демо — данные можно вернуть кнопкой «Сброс».')) return;
+    if (!window.confirm('Удалить все заявки и записи на замер? Их можно вернуть кнопкой «Сброс».')) return;
     await api.leads.clearAll();
   };
 
@@ -60,7 +60,7 @@ function LeadList({ go }: { go: (r: string) => void }) {
         </div>
       </div>
       {all && all.length === 0 && (
-        <div className="adm-empty"><Icon name="list" size={28} /><b>Заявок пока нет</b><p className="small muted">Они появятся, когда посетитель запишется на замер или попросит смету в Telegram. Вернуть демо-заявки — кнопка «Сброс» вверху.</p></div>
+        <div className="adm-empty"><Icon name="list" size={28} /><b>Заявок пока нет</b><p className="small muted">Они появятся, когда посетитель запишется на замер или попросит смету в Telegram. Вернуть исходные заявки — кнопка «Сброс» вверху.</p></div>
       )}
       {all && all.length > 0 && list.length === 0 && <p className="muted adm-empty-s">По этому фильтру заявок нет.</p>}
       <ul className="lcards">
@@ -117,7 +117,7 @@ function LeadCard({ id, go }: { id: string; go: (r: string) => void }) {
         </div>
         <div className="lead-call">
           <a className="btn btn-primary" href={telHref(l.phone)}><Icon name="phone" size={18} /> Позвонить</a>
-          <button className="btn btn-ghost" onClick={() => toast(`Демо: здесь откроется чат с ${l.name} в мессенджере. Ничего не отправляется.`)}><Icon name="chat" size={18} /> Написать</button>
+          <button className="btn btn-ghost" onClick={() => toast(`Здесь откроется чат с ${l.name} в мессенджере.`)}><Icon name="chat" size={18} /> Написать</button>
         </div>
       </header>
 
@@ -156,7 +156,7 @@ function LeadCard({ id, go }: { id: string; go: (r: string) => void }) {
             <span className="mono notif-from">{channel === 'telegram' ? 'Метр · бот заявок' : 'MAX · Метр заявки'}</span>
             <pre>{api.leads.notificationText(l)}</pre>
           </div>
-          <p className="small muted"><Icon name="info" size={14} /> Демо: так выглядело бы сообщение в {channel === 'telegram' ? 'Telegram' : 'MAX'}. Ничего не отправлено.</p>
+          <p className="small muted"><Icon name="info" size={14} /> Так выглядит сообщение в {channel === 'telegram' ? 'Telegram' : 'MAX'}.</p>
         </section>
       </div>
     </div>
